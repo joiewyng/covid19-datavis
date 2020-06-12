@@ -57,7 +57,7 @@ function lineChartData(json, metric) {
 }
 
 function date(index, json){
-    let date = json[index].date.toString();
+    let date = json[json.length-1-index].date.toString();
     date = date.substr(4,2) + "/" + date.substr(6) + "/" + date.substr(0,4);
     return date;
 }
@@ -110,7 +110,7 @@ export default class FetchData extends React.Component {
             padding={100}
             theme={VictoryTheme.material}
             animate={{
-                duration: 500
+                duration: 1000
             }}
             containerComponent={
                 <VictoryVoronoiContainer
@@ -129,7 +129,7 @@ export default class FetchData extends React.Component {
                 <VictoryAxis
                     style={sharedAxisStyles}
                     tickValues={[0, this.state.json.length]}
-                    tickFormat={[date(this.state.json.length-1, this.state.json), date(0, this.state.json)]}
+                    tickFormat={[date(0, this.state.json), date(this.state.json.length-1, this.state.json)]}
                 ></VictoryAxis>
                 <VictoryAxis
                     dependentAxis
@@ -153,7 +153,7 @@ export default class FetchData extends React.Component {
                 padding={100}
                 theme={VictoryTheme.material}
                 animate={{
-                    duration: 500
+                    duration: 1000
                 }}
                 style={{ parent: { maxWidth: "30%" } }}
             >
@@ -180,7 +180,7 @@ export default class FetchData extends React.Component {
                 <VictoryAxis
                     style={sharedAxisStyles}
                     tickValues={[0, this.state.json.length]}
-                    tickFormat={[date(this.state.json.length-1, this.state.json), date(0, this.state.json)]}
+                    tickFormat={[date(0, this.state.json), date(this.state.json.length-1, this.state.json)]}
                 ></VictoryAxis>
                 <VictoryAxis
                     dependentAxis
@@ -214,7 +214,7 @@ export default class FetchData extends React.Component {
             width={400}
             padding={100}
             animate={{
-                duration: 500
+                duration: 1000
             }}
             style={{ parent: { maxWidth: "30%" } }}
             theme={VictoryTheme.material}
@@ -242,7 +242,7 @@ export default class FetchData extends React.Component {
                 <VictoryAxis
                 style={sharedAxisStyles}
                         tickValues={[0, this.state.stateJson1.length]}
-                        tickFormat={[date(this.state.stateJson1.length-1, this.state.stateJson1), date(0, this.state.stateJson1)]}
+                        tickFormat={[date(0, this.state.stateJson1), date(this.state.stateJson1.length-1, this.state.stateJson1)]}
                 />
                 <VictoryAxis
                         dependentAxis

@@ -10,8 +10,11 @@ import {
      VictoryArea,
      VictoryScatter,
      VictoryZoomContainer,
-     createContainer
+     createContainer,
+     VictoryLegend,
+     VictoryLine
     } from 'victory';
+import CountryChart from './CountryChart'
 
 const sharedAxisStyles = {
     tickLabels: {
@@ -25,18 +28,16 @@ const sharedAxisStyles = {
     };
 
 const VictoryZoomVoronoiContainer = createContainer("zoom", "voronoi");
-
-function configData(json) {
-    return json.Countries;
-}
     
 function bubbleChartData(json, metric) {
-    let array = configData(json);
+    let array = json.Countries;
     let bubbleData = array.map(obj => ({
         x: obj.TotalDeaths, 
         y: obj[metric], 
         amount: obj.TotalConfirmed, 
-        country: obj.Country}));
+        country: obj.Country,
+        countryCode: obj.CountryCode
+    }));
     return bubbleData;
 }
 
@@ -44,9 +45,31 @@ function bubbleChartData(json, metric) {
 export default class BubbleChart extends React.Component {
     state = {
         loading: true,
-        json: {}
-       
+        json: {},
+        countryCode : ''
     };
+
+    constructor(props) {
+        super(props);
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleChange(event) {
+        
+            // const stateUrl3 = "https://covidtracking.com/api/v1/states/" + event.target.value + "/daily.json";
+            // const stateResponse3 = await fetch(stateUrl3);
+            // const stateData3 = await stateResponse3.json();
+            this.setState({
+                countryCode: event.target.value
+            });
+            console.log(event.target.value);
+            console.log(this.state.countryCode);
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+    }
 
     async componentDidMount() {
         const url = "https://api.covid19api.com/summary";
@@ -61,7 +84,26 @@ export default class BubbleChart extends React.Component {
             return(<div>loading...</div>);
         }
 
+        if (this.state.countryCode !== ''){
+            return(
+                <>
+                <button onClick= {() => this.setState({countryCode: ''})}>Back to World Chart</button>
+                {/* <form style={{paddingLeft: '55%', marginBottom: '-10px'}} onSubmit={this.handleSubmit}>
+                <select value={this.state.countryCode} onChange={this.handleChange}>
+                    <option value={this.state.countryCode}>{this.state.countryCode}</option>
+                    <option value="fr">France</option>
+                    <option value="br">Brazil</option>
+                </select>
+                </form> */}
+                <CountryChart countryCode={this.state.countryCode}/>
+                </>
+            );
+        } else {
+
+
+
         return (
+        
         <div style={{ display: "flex", flexWrap: "wrap", paddingLeft: '15%', marginTop: -50 }}>
             <VictoryChart
             style={{ parent: { maxWidth: "80%" } }}
@@ -110,7 +152,9 @@ export default class BubbleChart extends React.Component {
                  target: 'data',
                  eventHandlers: {
                      onClick: (event, data) => {
-                         console.log(data.datum.country);
+                         let cCode = data.datum.countryCode
+                         console.log(cCode);
+                         this.setState({countryCode: cCode});
                      },
                  },
              }]}
@@ -120,5 +164,6 @@ export default class BubbleChart extends React.Component {
             </VictoryChart>
         </div>
             ); 
+        }
     }
 }

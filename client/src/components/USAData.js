@@ -148,7 +148,9 @@ export default class USAData extends React.Component {
             }}
             containerComponent={
                 <VictoryVoronoiContainer
-                  labels={({ datum }) => `${date(datum.index, this.state.json)}: ${datum.posIncr} new case(s)`}
+                  labels={({ datum }) => 
+                  `${date(datum.index, this.state.json)}: ${datum.posIncr} new case(s)`
+            }
                 />
               }
             style={{ parent: { maxWidth: "30%" } }}

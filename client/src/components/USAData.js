@@ -89,7 +89,7 @@ export default class USAData extends React.Component {
         }
       }
     
-    async handleSubmit(event) {
+    handleSubmit(event) {
         event.preventDefault();
     }
 

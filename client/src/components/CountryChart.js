@@ -64,6 +64,14 @@ function date(index, json){
     return date;
 }
 
+// async function fetchJsonData(cc, type) {
+//     const url = "https://api.covid19api.com/total/country/"+cc+"/status/"+type;
+//     const response = await fetch(url);
+//     const data = await response.json();
+//     let prop = type+'Json';
+//     this.setState({loading: false, [prop]: data});
+// }
+
 export default class CountryChart extends React.Component {
     constructor(props){
         super(props);
@@ -71,6 +79,9 @@ export default class CountryChart extends React.Component {
             loading: true,
             //dates ordered from least recent to most recent
             json: {},
+            confirmedJson: {},
+            recoveredJson: {},
+            deathsJson: {},
         };
     }
 
@@ -81,6 +92,9 @@ export default class CountryChart extends React.Component {
         const data = await response.json();
         console.log(data);
         this.setState({loading: false, json: data});
+        // await fetchJsonData(cc, "confirmed");
+        // await fetchJsonData(cc, "recovered");
+        // await fetchJsonData(cc, "deaths");
     }
 
     render() {

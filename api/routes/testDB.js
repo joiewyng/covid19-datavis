@@ -27,49 +27,83 @@ const router = express.Router();
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 
+const url = require('url');
+
 // Connection URL
-const url = 'mongodb://127.0.0.1:27017';
+const connectionUrl = 'mongodb://127.0.0.1:27017';
 
 // Database Name
-const dbName = 'covid19';
-
+let dbName;
+let countryData;
 
 // Variable to be sent to Frontend with Database status
 let databaseConnection = "Waiting for Database response...";
+// Variable to be sent to Frontend with DB initialization status
+let dbInitialization = "Creating database...";
+
 // response when a GET request is made to the homepage
 router.get("/", function(req, res, next) {
-    res.send(databaseConnection);
+    // res.send({msg: databaseConnection});
+    res.send({countryData});
 });
+
+
 
 
 router.post("/", function(req, res){
     req.setTimeout(0)
-    console.log("post content received");
-    MongoClient.connect(url, { useUnifiedTopology: true }).then(function(client) {
-        // assert.equal(null, err);
-        db = client.db(dbName);
-        collectionName = "countrydata";
-        collection = db.collection(collectionName);
-        //delete existing documents before repopulating collection
-        collection.deleteMany({}, function(){
-            // console.log(req.body.Countries);
-            let data = req.body.Countries;
-            collection.insertMany(data, function(err,r){
-                if (err){
-                    console.log("issue inserting into db: " + err);
-                }
+    const queryObject = url.parse(req.url,true).query;
 
-            })
-        })   
+    MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client) {
+        // assert.equal(null, err);
+        dbName = req.body.dbName;
+        db = client.db(dbName);
+
+        //queryObject.delete true if Delete DB button was clicked
+        if (queryObject.delete){
+            db.dropDatabase(function(){
+                // res.send("Database "+dbName+" deleted successfully.")
+                Promise.resolve("Database "+dbName+" deleted successfully.");
+            });
+        } else if (queryObject.country) {
+            collectionName = "countrydata";
+            collection = db.collection(collectionName);
+            console.log('from Node: the country is '+ queryObject.country);
+            countryData = collection.find({Country: queryObject.country}).toArray(function(err, res){
+                if (err) throw err;
+                console.log(res);
+                console.log('result: '+ res);
+                // return res;
+                countryData = res;
+            });
+            // console.log('countryData: '+countryData);
+            // Promise.resolve(countryData);
+        }else {
+            collectionName = "countrydata";
+            collection = db.collection(collectionName);
+            //delete existing documents before repopulating collection
+            collection.deleteMany({}, function(){
+                let data = req.body.json.Countries;
+                collection.insertMany(data, function(err,r){
+                    if (err){
+                        console.log("Issue inserting into DB: " + err);
+                    }
+    
+                })
+            })   
+        }
     }).then(function(docs){
-        docs = collection.find().toArray();
+        if (!queryObject.delete && !queryObject.country){
+            docs = collection.find().toArray();
+        }
         return docs;
     }).then(function(docs){
-        console.log("documents in collection "+collectionName+":")
-        console.log(docs);
-        console.log("huh?");
-        databaseConnection = "connected to DB!";
-        res.send(docs);// TODO: change endpoint URL / edit Temp to accomodate for additional res
+        if (!queryObject.delete && !queryObject.country){
+            initializingDatabase = "Database has been created!";
+            databaseConnection = "Connected to DB!";
+        }
+        // res.send(initializingDatabase);
+        res.send(docs);
         return docs;
     }).catch(function(err){
         console.log("error: " + err);

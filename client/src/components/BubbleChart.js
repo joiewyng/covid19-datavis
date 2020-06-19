@@ -75,7 +75,7 @@ export default class BubbleChart extends React.Component {
         const url = "https://api.covid19api.com/summary";
         const response = await fetch(url);
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
         this.setState({loading: false, json: data});
     }
 

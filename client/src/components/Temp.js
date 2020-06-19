@@ -19,8 +19,13 @@ export default class Temp extends React.Component {
     callDB() {
         fetch("http://localhost:9000/testDB")
             .then(res => res.text())
-            .then(res => this.setState({ dbResponse: res }))
-            .catch(err => err);
+            .then(res => {
+                // let json = JSON.parse(res);
+                // this.setState({ dbResponse: json.msg });
+                // console.log(json.msg);
+                console.log("GET from Temp res: "+res);
+                this.setState({dbResponse: res});
+            }).catch(err => err);
     }
     
     componentWillMount() {
@@ -32,7 +37,9 @@ export default class Temp extends React.Component {
         return (
             <>
             <p className="App-intro">{this.state.apiResponse}</p>
-            <p className="App-intro">{this.state.dbResponse}</p>
+            <p style={{fontSize:10}}className="App-intro">{this.state.dbResponse}</p>
+
+            
             </>
         );
     }

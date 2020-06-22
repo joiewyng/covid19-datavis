@@ -1,0 +1,16 @@
+import React from 'react';
+import { Switch, Route } from 'react-router-dom';
+
+import Data from './Data';
+import ManageData from './ManageData'
+
+const Main = () => {
+  return (
+    <Switch> {/* The Switch decides which component to show based on the current URL.*/}
+      <Route exact path='/' component={Data}></Route>
+      <Route exact path='/manage' component={ManageData}></Route>
+    </Switch>
+  );
+}
+
+export default Main;

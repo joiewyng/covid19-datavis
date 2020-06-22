@@ -1,26 +1,3 @@
-// const express = require("express");
-// const router = express.Router();
-// const mongoose = require("mongoose");
-// // Variable to be sent to Frontend with Database status
-// let databaseConnection = "Waiting for Database response...";
-// // response when a GET request is made to the homepage
-// router.get("/", function(req, res, next) {
-//     res.send(databaseConnection);
-// });
-// // Connecting to MongoDB
-// mongoose.connect('mongodb://127.0.0.1:27017/covid19', { useNewUrlParser: true })
-// // If there is a connection error send an error message
-// mongoose.connection.on("error", error => {
-//     console.log("Database connection error:", error);
-//     databaseConnection = "Error connecting to Database";
-// });
-// // If connected to MongoDB send a success message
-// mongoose.connection.once("open", () => {
-//     console.log("Connected to Database!");
-//     databaseConnection = "Connected to Database";
-// });
-// module.exports = router;
-
 const express = require("express");
 const router = express.Router();
 
@@ -38,8 +15,7 @@ let countryData;
 
 // Variable to be sent to Frontend with Database status
 let databaseConnection = "Waiting for Database response...";
-// Variable to be sent to Frontend with DB initialization status
-let dbInitialization = "Creating database...";
+
 
 // response when a GET request is made to the homepage
 router.get("/", function(req, res, next) {
@@ -55,17 +31,27 @@ router.post("/", function(req, res){
     const queryObject = url.parse(req.url,true).query;
 
     MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client) {
-        // assert.equal(null, err);
+        // ISSUE: the .thens after this one execute before the stuff in this .then finishies 
+        // i.e. docs ends up being undefined
+
         dbName = req.body.dbName;
         db = client.db(dbName);
 
-        //queryObject.delete true if Delete DB button was clicked
-        if (queryObject.delete){
-            db.dropDatabase(function(){
-                // res.send("Database "+dbName+" deleted successfully.")
-                Promise.resolve("Database "+dbName+" deleted successfully.");
+        // QueryObject.delete true if Delete DB button was clicked
+        if (queryObject.delete){ // Delete DB
+            // return ("lets delete the DB");
+            db.dropDatabase(function(err, result){
+                if (result) {
+                    console.log("deleted success");
+                    
+                    return Promise.resolve("deleted DB successfully!");
+                } else {
+                    return Promise.resolve("DB was not deleted.");
+                }
             });
+            console.log("it moved on already.");
         } else if (queryObject.country) {
+
             collectionName = "countrydata";
             collection = db.collection(collectionName);
             console.log('from Node: the country is '+ queryObject.country);
@@ -78,10 +64,13 @@ router.post("/", function(req, res){
             });
             // console.log('countryData: '+countryData);
             // Promise.resolve(countryData);
-        }else {
+
+        }else { // Insert Country data from public API JSON into collection "countrydata"
+
             collectionName = "countrydata";
             collection = db.collection(collectionName);
-            //delete existing documents before repopulating collection
+
+            // Delete existing documents before repopulating collection
             collection.deleteMany({}, function(){
                 let data = req.body.json.Countries;
                 collection.insertMany(data, function(err,r){
@@ -92,7 +81,9 @@ router.post("/", function(req, res){
                 })
             })   
         }
+        console.log("does it reach here?");
     }).then(function(docs){
+        console.log('intermediate msg:' + docs);
         if (!queryObject.delete && !queryObject.country){
             docs = collection.find().toArray();
         }

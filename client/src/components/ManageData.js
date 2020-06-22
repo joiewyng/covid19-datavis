@@ -55,8 +55,9 @@ export default class ManageData extends React.Component {
           })
           .then(function(response){
             console.log('(init) POST to NodeJS endpoint: success')
-            console.log(response);
             return response.json();
+          }).then(function(json){
+            console.log(json[0]);
           }).catch(function(err){
               console.log('Failed to send form data to Node: \n'+err);
           });
@@ -74,13 +75,13 @@ export default class ManageData extends React.Component {
                 dbName: this.state.dbName,
             }),
             headers: {"Content-Type": "application/json"}
-          })
-          .then(function(response){
+        }).then(function(response){
             console.log('(del) POST to NodeJS endpoint: success')
-
-            console.log(response);
-            return response;
-          }).catch(function(err){
+            return response.text();
+        }).then(string => {
+            console.log("response string:");
+            console.log(string);
+        }).catch(function(err){
               console.log('Failed to delete DB: \n'+err);
           });
           alert('The following database will be deleted: '+this.state.dbName);

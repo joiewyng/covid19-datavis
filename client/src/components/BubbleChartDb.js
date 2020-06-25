@@ -28,10 +28,10 @@ const VictoryZoomVoronoiContainer = createContainer("zoom", "voronoi");
     Formats [json] data, setting x and y axes for bubble chart 
     Returns: object array containing reformatted data 
 */
-function bubbleChartData(json) {
+function bubbleChartData(json, metric) {
     let array = Array.from(json);
     let bubbleData = array.map(obj => ({
-        x: obj.TotalRecovered,
+        x: obj[metric],
         y: obj.TotalDeaths,  
         amount: obj.TotalConfirmed, 
         country: obj.Country,
@@ -107,8 +107,8 @@ export default class BubbleChartDb extends React.Component {
                             duration: 1000
                         }}
                         domain={{
-                            x: [0, this.findMax(bubbleChartData(this.state.json), 'x') * 1.2],
-                            y: [0, this.findMax(bubbleChartData(this.state.json), 'y') * 1.2]
+                            x: [0, this.findMax(bubbleChartData(this.state.json, 'TotalRecovered'), 'x') * 1.2],
+                            y: [0, this.findMax(bubbleChartData(this.state.json, 'TotalRecovered'), 'y') * 1.2]
                         }}
                         containerComponent={
                             <VictoryZoomVoronoiContainer 
@@ -143,7 +143,7 @@ export default class BubbleChartDb extends React.Component {
                             bubbleProperty="amount"
                             maxBubbleSize={20}
                             minBubbleSize={1}
-                            data={bubbleChartData(this.state.json)}
+                            data={bubbleChartData(this.state.json, 'TotalRecovered')}
                             events={[{
                                 target: 'data',
                                 eventHandlers: {

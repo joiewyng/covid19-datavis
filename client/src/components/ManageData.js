@@ -66,6 +66,7 @@ export default class ManageData extends React.Component {
     async handleRefresh(event) {
         event.preventDefault();
         await this.setState({refreshChart: true});
+        console.log('handle refresh');
         let url = "http://localhost:9000/testDB?refreshchart=" + this.state.refreshChart;
         await fetch(url)
         .then(function(response){
@@ -73,7 +74,7 @@ export default class ManageData extends React.Component {
         }).then(json => {
             // let json = JSON.parse(res);
             // console.log(json.msg);
-
+            console.log(JSON.stringify(json));
             this.props.setJson(json);
         }).catch(err => err);
     }

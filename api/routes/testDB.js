@@ -24,25 +24,44 @@ let databaseConnection = "Waiting for Database response...";
 // });
 
 // response when a GET request is made to the homepage
-router.get("/", function(req, res) {
+// router.get("/", function(req, res) {
+//     queryObject = url.parse(req.url,true).query;
+//     console.log('refresh get request received in Node');
+//     if (queryObject.refreshchart){
+//         MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client) {
+//             // dbName = req.body.dbName;
+//             // dbName = "test";
+//             // collectionName = "countrydata";
+//             db = client.db(dbName);
+//             collection = db.collection(collectionName);
+//             console.log('huhh');
+//             docs = collection.find({Country: {$eq: "United States of America"}}).toArray();
+//             res.send(docs);
+//         });
+//     } 
+// });
+
+router.get("/", function(req, res){
     queryObject = url.parse(req.url,true).query;
-    console.log('refresh get request received in Node');
     if (queryObject.refreshchart){
-        MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client) {
-            dbName = req.body.dbName;
+        MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client){
+            dbName = 'test';
+            collectionName = 'countrydata';
             db = client.db(dbName);
-            docs = collection.find().toArray();
+            collection = db.collection(collectionName);
+            let docs = collection.find().toArray();
+            return docs
+        }).then(function(docs){
             res.send(docs);
-        });
-    } else if (queryObject.refreshUSAchart){
-        MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client) {
-            dbName = req.body.dbName;
-            db = client.db(dbName);
-            docs = collection.find().toArray();
-            res.send(docs);
-        });
+            return docs;
+        }).catch(function(err){
+            console.log("error: " + err);
+        });  
+        
     }
-});
+})
+
+
 
 router.post("/", function(req, res){
     req.setTimeout(0)

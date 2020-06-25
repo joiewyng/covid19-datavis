@@ -2,15 +2,9 @@ import React from 'react';
 import {
      VictoryChart,
      VictoryAxis, 
-     VictoryBar, 
      VictoryTheme, 
      VictoryVoronoiContainer,
      VictoryLabel,
-     VictoryStack,
-     VictoryArea,
-     VictoryScatter,
-     VictoryZoomContainer,
-     createContainer,
      VictoryLegend,
      VictoryLine
     } from 'victory';
@@ -53,11 +47,11 @@ function configData(json) {
     return data;
 }
 
-function lineChartData(json, metric) {
-    let array = configData(json);
-    let lineData = array.map(obj => ({x: obj.index, y: obj[metric]}));
-    return lineData;
-}
+// function lineChartData(json, metric) {
+//     let array = configData(json);
+//     let lineData = array.map(obj => ({x: obj.index, y: obj[metric]}));
+//     return lineData;
+// }
 
 function date(index, json){
     let date = json[index].Date.split("T")[0];
@@ -99,7 +93,7 @@ export default class CountryChart extends React.Component {
 
     render() {
         if (this.state.loading){
-            return(<div>loading...</div>);
+            return(<div style={{margin: 20}}>loading...</div>);
         }
 
         return (
@@ -112,7 +106,7 @@ export default class CountryChart extends React.Component {
             theme={VictoryTheme.material}
             
             animate={{
-                duration: 200
+                duration: 100
             }}
             style={{ parent: { maxWidth: "45%", marginLeft: "25%"} }}
             containerComponent={

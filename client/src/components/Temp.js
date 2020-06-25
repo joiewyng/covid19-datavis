@@ -28,7 +28,7 @@ export default class Temp extends React.Component {
             }).catch(err => err);
     }
     
-    componentWillMount() {
+    componentDidMount() {
         this.callAPI();
         this.callDB();
     }

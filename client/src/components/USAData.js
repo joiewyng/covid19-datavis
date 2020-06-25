@@ -10,8 +10,6 @@ import {
      VictoryLine,
      VictoryLegend,
      VictoryStack,
-     VictoryZoomContainer,
-     VictoryContainer
     } from 'victory';
 
 const sharedAxisStyles = {

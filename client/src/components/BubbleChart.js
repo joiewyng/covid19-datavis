@@ -2,17 +2,10 @@ import React from 'react';
 import {
      VictoryChart,
      VictoryAxis, 
-     VictoryBar, 
      VictoryTheme, 
-     VictoryVoronoiContainer,
      VictoryLabel,
-     VictoryStack,
-     VictoryArea,
      VictoryScatter,
-     VictoryZoomContainer,
      createContainer,
-     VictoryLegend,
-     VictoryLine
     } from 'victory';
 import CountryChart from './CountryChart'
 
@@ -56,10 +49,6 @@ export default class BubbleChart extends React.Component {
     }
 
     handleChange(event) {
-        
-            // const stateUrl3 = "https://covidtracking.com/api/v1/states/" + event.target.value + "/daily.json";
-            // const stateResponse3 = await fetch(stateUrl3);
-            // const stateData3 = await stateResponse3.json();
             this.setState({
                 countryCode: event.target.value
             });
@@ -99,70 +88,65 @@ export default class BubbleChart extends React.Component {
                 </>
             );
         } else {
-
-
-
-        return (
-        
-        <div style={{ display: "flex", flexWrap: "wrap", paddingLeft: '15%', marginTop: -50 }}>
-            <VictoryChart
-            style={{ parent: { maxWidth: "80%" } }}
-            height={400}
-            width={500}
-            padding={100}
-            theme={
-                VictoryTheme.material
-            }
-            animate={{
-                duration: 10000
-            }}
-            domain={{x: [0, 130000], y: [0, 700000]}}
-            containerComponent={
-                <VictoryZoomVoronoiContainer 
-                zoomDomain={{x: [0, 130000], y: [0, 700000]}}
-                labels={({ datum }) => `${datum.country}: ${datum.amount} confirmed case(s)`}
-                />
-              }
-            >   
-            <VictoryLabel
-                    fontSize={10}
-                    x={250}
-                    y={60}
-                    textAnchor="middle"
-                    text="World: Total Deaths vs Recoveries per Country"
-                />
-            <VictoryAxis
-                style={sharedAxisStyles}
-                tickFormat={(x) => (`${x / 1000}k`)}
-                label="Total Recoveries"
-            ></VictoryAxis>
-            <VictoryAxis
-                dependentAxis
-                tickFormat={(x) => (`${x / 1000}k`)}
-                label="Total Deaths"
-                style={sharedAxisStyles}
-            ></VictoryAxis>
-            <VictoryScatter
-             style={{ data: { fill: "#c43a31", opacity: "50%" } }}
-             bubbleProperty="amount"
-             maxBubbleSize={20}
-             minBubbleSize={1}
-             data={bubbleChartData(this.state.json, 'TotalRecovered')}
-             events={[{
-                 target: 'data',
-                 eventHandlers: {
-                     onClick: (event, data) => {
-                         let cCode = data.datum.countryCode
-                         console.log(cCode);
-                         this.setState({countryCode: cCode});
-                     },
-                 },
-             }]}
-             >
-
-            </VictoryScatter>
-            </VictoryChart>
-        </div>
+            return (
+                <div style={{ display: "flex", flexWrap: "wrap", paddingLeft: '15%', marginTop: -50 }}>
+                    <VictoryChart
+                        style={{ parent: { maxWidth: "80%" } }}
+                        height={400}
+                        width={500}
+                        padding={100}
+                        theme={
+                            VictoryTheme.material
+                        }
+                        animate={{
+                            duration: 10000
+                        }}
+                        domain={{x: [0, 130000], y: [0, 800000]}}
+                        containerComponent={
+                            <VictoryZoomVoronoiContainer 
+                                zoomDomain={{x: [0, 130000], y: [0, 800500]}}
+                                labels={({ datum }) => `${datum.country}: ${datum.amount} confirmed case(s)`}
+                            />
+                        }
+                    >   
+                        <VictoryLabel
+                            fontSize={10}
+                            x={250}
+                            y={60}
+                            textAnchor="middle"
+                            text="World: Total Deaths vs Recoveries per Country"
+                        />
+                        <VictoryAxis
+                            style={sharedAxisStyles}
+                            tickFormat={(x) => (`${x / 1000}k`)}
+                            label="Total Recoveries"
+                        ></VictoryAxis>
+                        <VictoryAxis
+                            dependentAxis
+                            tickFormat={(x) => (`${x / 1000}k`)}
+                            label="Total Deaths"
+                            style={sharedAxisStyles}
+                        ></VictoryAxis>
+                        <VictoryScatter
+                            style={{ data: { fill: "#c43a31", opacity: "50%" } }}
+                            bubbleProperty="amount"
+                            maxBubbleSize={20}
+                            minBubbleSize={1}
+                            data={bubbleChartData(this.state.json, 'TotalRecovered')}
+                            events={[{
+                                target: 'data',
+                                eventHandlers: {
+                                    onClick: (event, data) => {
+                                        let cCode = data.datum.countryCode
+                                        console.log(cCode);
+                                        this.setState({countryCode: cCode});
+                                    },
+                                },
+                            }]}
+                        >
+                        </VictoryScatter>
+                    </VictoryChart>
+                </div>
             ); 
         }
     }

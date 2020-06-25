@@ -1,4 +1,5 @@
 import React from 'react';
+import BubbleChartDb from './BubbleChartDb';
 
 export default class ManageData extends React.Component {
     constructor(props) {
@@ -9,15 +10,15 @@ export default class ManageData extends React.Component {
             apiJson: '',
             dbName: '',
             deleteDb: false,
+            refreshChart: false
         };
     
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDeleteSubmit = this.handleDeleteSubmit.bind(this);
         this.handleCountrySubmit = this.handleCountrySubmit.bind(this);
+        this.handleRefresh = this.handleRefresh.bind(this);
     }
-
-
 
     handleChange = prop => (event) => {
         this.setState({[prop]: event.target.value});
@@ -25,18 +26,10 @@ export default class ManageData extends React.Component {
     
     // pull data from API at [url], set to json, update state apiJson
     async apiToJson (url) {
-        // await fetch(url).then(function(response){
-        //     return response.json();
-        // }).then(function(data){
-        //     console.log(data);
-        //     this.setState({loading: false, apiJson: data});
-        // }).catch(function(err){
-        //     console.log('unable to fetch data from API: ' + err);
-        // });
+ 
         const response = await fetch(url);
         const data = await response.json();
         console.log('GET API data: success')
-        // console.log(data);
         this.setState({loading: false, apiJson: data});
     }
 
@@ -56,12 +49,33 @@ export default class ManageData extends React.Component {
           .then(function(response){
             console.log('(init) POST to NodeJS endpoint: success')
             return response.json();
-          }).then(function(json){
-            console.log(json[0]);
+          }).then(json => {
+            // json (queried from MongoDB) has all the data from the api just submitted
+            // this.setState({dataJson: json});
+            // console.log(this.state.dataJson);
+            console.log(typeof(json));
+            this.props.setJson(json);
+            // console.log(json);
+            return json;
           }).catch(function(err){
               console.log('Failed to send form data to Node: \n'+err);
           });
           alert('Creating a database with the following submission: \n\nAPI link: ' + url+'\nDB name: '+this.state.dbName);
+    }
+
+    async handleRefresh(event) {
+        event.preventDefault();
+        await this.setState({refreshChart: true});
+        let url = "http://localhost:9000/testDB?refreshchart=" + this.state.refreshChart;
+        await fetch(url)
+        .then(function(response){
+            return response.json();
+        }).then(json => {
+            // let json = JSON.parse(res);
+            // console.log(json.msg);
+
+            this.props.setJson(json);
+        }).catch(err => err);
     }
 
     async handleDeleteSubmit(event) {
@@ -80,7 +94,7 @@ export default class ManageData extends React.Component {
             return response.text();
         }).then(string => {
             console.log("response string:");
-            console.log(string);
+            console.log(string); // nothing: issue in testDB
         }).catch(function(err){
               console.log('Failed to delete DB: \n'+err);
           });
@@ -110,26 +124,33 @@ export default class ManageData extends React.Component {
           alert('Retrieving data from: '+this.state.dbName+' on '+this.state.country);
     }
 
+    componentDidMount(){
+        console.log("manageData mount called")
+    }
+
     render(){
         return (
-            <form style={{margin: 30}} onSubmit={this.handleSubmit}>
-                <label style={{margin: 15}}>
-                    DB Name: &nbsp;
-                    <input type="text" name="dbName" value={this.state.dbName} onChange={this.handleChange('dbName')}/>
-                </label>
-                <label style={{margin: 15}}>
-                    API Link: &nbsp;
-                    <input type="text" name="apiLink" value={this.state.apiLink} onChange={this.handleChange('apiLink')}/>
-                </label>
-                <input type="submit" name="initDB" value="Initialize Database" style={{margin: 15}}/>
-                <button onClick={this.handleDeleteSubmit} style={{margin: 15}}>Delete Database</button>
-                <label style={{margin: 15}}>
-                    Country: &nbsp;
-                    <input type="text" name="apiLink" value={this.state.country} onChange={this.handleChange('country')}/>
-                </label>
-                <button onClick={this.handleCountrySubmit} style={{margin: 15}}>Search</button>
-            </form>
-            
+            <div>
+                <form style={{margin: 30}} onSubmit={this.handleSubmit}>
+                    <label style={{margin: 15}}>
+                        DB Name: &nbsp;
+                        <input type="text" name="dbName" value={this.state.dbName} onChange={this.handleChange('dbName')}/>
+                    </label>
+                    <label style={{margin: 15}}>
+                        API Link: &nbsp;
+                        <input type="text" name="apiLink" value={this.state.apiLink} onChange={this.handleChange('apiLink')}/>
+                    </label>
+                    <input type="submit" name="initDB" value="Initialize Database" style={{margin: 15}}/>
+                    <button onClick={this.handleDeleteSubmit} style={{margin: 15}}>Delete Database</button>
+                    <label style={{margin: 15}}>
+                        Country: &nbsp;
+                        <input type="text" name="apiLink" value={this.state.country} onChange={this.handleChange('country')}/>
+                    </label>
+                    <button onClick={this.handleCountrySubmit} style={{margin: 15}}>Search</button>
+                    <button onClick={this.handleRefresh} style={{margin: 15}}>Refresh</button>
+                </form>
+                {/* <BubbleChartDb/> */}
+            </div> 
         );
     }
 }

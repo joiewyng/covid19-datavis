@@ -88,7 +88,6 @@ export default class WorldChart extends React.Component {
 
     async handleReset(event) {
         event.preventDefault();
-        console.log('reset');
         let url = "http://localhost:9000/worldDB?reset=true"
         await fetch(url, {
             method: 'POST'
@@ -97,14 +96,12 @@ export default class WorldChart extends React.Component {
         }).then(dataJson => {
             this.setState({json: Array.from(dataJson)});
             console.log('why??');
-            console.log(JSON.stringify(dataJson[0]));
             return this.state.json
         }).catch(err => err);
     }
 
     async handleRefresh(event) {
         event.preventDefault();
-        console.log('refresh');
         let url = "http://localhost:9000/worldDB";
         await fetch(url)
         .then(function(response){

@@ -152,7 +152,7 @@ collectionName = "countrydata";
 //     let docs = collection.find().toArray();
 //     return docs;
 // }).then(function(docs){
-//     let fileName = './data/'+collectionName+'.json';
+//     let fileName = './data/'+collectionName+'local.json';
 //     let json = JSON.stringify(docs);
 //     fs.writeFile(fileName, json, 'utf8', function callback(err, res){
 //         if (err){

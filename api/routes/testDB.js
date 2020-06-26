@@ -145,23 +145,24 @@ function errCallback(err) {
 dbName = "test";
 collectionName = "countrydata";
 
-MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client) {
-    db = client.db(dbName);
-    collection = db.collection(collectionName);
-    let docs = collection.find().toArray();
-    return docs;
-}).then(function(docs){
-    let fileName = './data/'+collectionName+'.json';
-    let json = JSON.stringify(docs);
-    fs.writeFile(fileName, json, 'utf8', function callback(err, res){
-        if (err){
-            console.log(err);
-        } else {
-           console.log('Saved data in '+collectionName+' as '+fileName); 
-        }
-    });
-    return docs;
-}).catch((err) => errCallback(err));  
+
+// MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client) {
+//     db = client.db(dbName);
+//     collection = db.collection(collectionName);
+//     let docs = collection.find().toArray();
+//     return docs;
+// }).then(function(docs){
+//     let fileName = './data/'+collectionName+'.json';
+//     let json = JSON.stringify(docs);
+//     fs.writeFile(fileName, json, 'utf8', function callback(err, res){
+//         if (err){
+//             console.log(err);
+//         } else {
+//            console.log('Saved data in '+collectionName+' as '+fileName); 
+//         }
+//     });
+//     return docs;
+// }).catch((err) => errCallback(err));  
 
 
 /*

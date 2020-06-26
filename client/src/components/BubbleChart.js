@@ -25,8 +25,8 @@ const VictoryZoomVoronoiContainer = createContainer("zoom", "voronoi");
 function bubbleChartData(json, metric) {
     let array = json.Countries;
     let bubbleData = array.map(obj => ({
-        x: obj.TotalDeaths, 
-        y: obj[metric], 
+        x: obj[metric],
+        y: obj.TotalDeaths, 
         amount: obj.TotalConfirmed, 
         country: obj.Country,
         countryCode: obj.CountryCode
@@ -59,6 +59,15 @@ export default class BubbleChart extends React.Component {
     handleSubmit(event) {
         event.preventDefault();
     }
+
+    findMax(array, prop){
+        if (array.length !== 0){
+            let maxObj = array.reduce((max, val) => val[prop] > max[prop] ? val : max);
+            let max = maxObj[prop];
+            return max;
+        }
+    }
+
 
     async componentDidMount() {
         const url = "https://api.covid19api.com/summary";
@@ -101,11 +110,16 @@ export default class BubbleChart extends React.Component {
                         animate={{
                             duration: 10000
                         }}
-                        domain={{x: [0, 130000], y: [0, 800000]}}
+                        domain={{
+                            x: [0, this.findMax(bubbleChartData(this.state.json, 'TotalRecovered'), 'x') * 1.2],
+                            y: [0, this.findMax(bubbleChartData(this.state.json, 'TotalRecovered'), 'y') * 1.2]
+                        }}
                         containerComponent={
                             <VictoryZoomVoronoiContainer 
-                                zoomDomain={{x: [0, 130000], y: [0, 800500]}}
-                                labels={({ datum }) => `${datum.country}: ${datum.amount} confirmed case(s)`}
+                            zoomDomain={{
+                                x: [0, 801000], y: [0, 130000]
+                            }}                                
+                            labels={({ datum }) => `${datum.country}: ${datum.amount} confirmed case(s)`}
                             />
                         }
                     >   

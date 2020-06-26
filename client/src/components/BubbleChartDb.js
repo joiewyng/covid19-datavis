@@ -42,14 +42,16 @@ function bubbleChartData(json, metric) {
 
 
 export default class BubbleChartDb extends React.Component {
-    state = {
-        loading: true,
-        json: {},
-        countryCode : ''
-    };
+
 
     constructor(props) {
         super(props);
+        this.state = {
+            loading: true,
+            json: {},
+            countryCode : '',
+            jsonLoaded: false
+        };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleJson = this.handleJson.bind(this);
     }
@@ -62,6 +64,8 @@ export default class BubbleChartDb extends React.Component {
         this.setState({
             json: dataJson,
         })
+        // console.log('json has been set...');
+        // console.log(this.state.json[0]);
     }
 
     findMax(array, prop){
@@ -95,6 +99,7 @@ export default class BubbleChartDb extends React.Component {
                     <Temp/>
                     <ManageData setJson={this.handleJson}/>
                     <div style={{ display: "flex", flexWrap: "wrap", paddingLeft: '15%', marginTop: -50 }}>
+                    {/* <div>{JSON.stringify(this.state.json)}</div> */}
                     <VictoryChart
                         style={{ parent: { maxWidth: "80%" } }}
                         height={400}

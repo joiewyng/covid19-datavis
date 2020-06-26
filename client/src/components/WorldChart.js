@@ -36,9 +36,10 @@ export default class WorldChart extends React.Component {
         countryCode : '',
         firstLoad: true,
     };
-        this.handleChange = this.handleChange.bind(this);
+        // this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
+        this.handleReset = this.handleReset.bind(this);
         this.bubbleChartData = this.bubbleChartData.bind(this);
     }
 
@@ -55,13 +56,13 @@ export default class WorldChart extends React.Component {
         return bubbleData;
     }
 
-    handleChange(event) {
-            this.setState({
-                countryCode: event.target.value
-            });
-            console.log(event.target.value);
-            console.log(this.state.countryCode);
-    }
+    // handleChange(event) {
+    //     this.setState({
+    //         countryCode: event.target.value
+    //     });
+    //     console.log(event.target.value);
+    //     console.log(this.state.countryCode);
+    // }
 
     handleSubmit(event) {
         event.preventDefault();
@@ -84,20 +85,28 @@ export default class WorldChart extends React.Component {
         }
     }
 
+    async handleReset(event) {
+        event.preventDefault();
+        let url = "http://localhost:9000/worldDB?reset=true"
+        await fetch(url, {
+            method: 'POST'
+        }).then(function(response){
+            return response.json();
+        }).then(dataJson => {
+            this.setState({json: Array.from(dataJson)});
+            console.log('why??');
+            console.log(JSON.stringify(dataJson));
+            return this.state.json
+        }).catch(err => err);
+    }
+
     async handleRefresh(event) {
         event.preventDefault();
-        console.log('clicked');
         let url = "http://localhost:9000/worldDB";
         await fetch(url)
         .then(function(response){
             return response.json();
         }).then(dataJson => {
-            // let json = JSON.parse(res);
-            // console.log(json.msg);
-            console.log('huh');
-            // console.log(JSON.stringify(dataJson));
-            console.log('what: '+this.state.firstLoad);
-            console.log('wtf');
             this.setState({json: Array.from(dataJson)});
             return this.state.json
         }).catch(err => err);
@@ -110,10 +119,6 @@ export default class WorldChart extends React.Component {
             const data = await response.json();
             this.setState({loading: false, json: data.Countries, firstLoad: false});
         }
-        console.log('mounted');
-        // console.log(data);
-        // const data = await this.callDB();
-        
     }
 
     render() {
@@ -134,6 +139,7 @@ export default class WorldChart extends React.Component {
                 <div style={{ display: "flex", flexWrap: "wrap", paddingLeft: "10%", marginTop: -50 }}>
                     {/* <div style={{minWidth: "20%"}}> */}
                         <button onClick={this.handleRefresh}>Refresh</button>
+                        <button onClick={this.handleReset}>Reset</button>
                     {/* </div> */}
                     <VictoryChart
                         style={{ parent: { maxWidth: "80%" } }}

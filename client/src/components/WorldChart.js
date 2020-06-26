@@ -33,8 +33,9 @@ export default class WorldChart extends React.Component {
         this.state = {
         loading: true,
         json: {},
-        countryCode : '',
+        countryCode: '',
         firstLoad: true,
+        countryList: [],
     };
         // this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -44,7 +45,7 @@ export default class WorldChart extends React.Component {
     }
 
     bubbleChartData(json, metric) {
-        console.log(JSON.stringify(json));
+        console.log(JSON.stringify(json[0]));
         let array = json;
         let bubbleData = array.map(obj => ({
             x: obj[metric],
@@ -68,12 +69,12 @@ export default class WorldChart extends React.Component {
         event.preventDefault();
     }
 
-    callDB() {
-        fetch("http://localhost:9000/worldDB")
+    async callDB() {
+        await fetch("http://localhost:9000/worldDB")
             .then(res => {
                 return res.json();
             }).then(json => {
-                this.setState({json: json});
+                this.setState({json: Array.from(json)});
             }).catch(err => err);
     }
 
@@ -87,6 +88,7 @@ export default class WorldChart extends React.Component {
 
     async handleReset(event) {
         event.preventDefault();
+        console.log('reset');
         let url = "http://localhost:9000/worldDB?reset=true"
         await fetch(url, {
             method: 'POST'
@@ -95,13 +97,14 @@ export default class WorldChart extends React.Component {
         }).then(dataJson => {
             this.setState({json: Array.from(dataJson)});
             console.log('why??');
-            console.log(JSON.stringify(dataJson));
+            console.log(JSON.stringify(dataJson[0]));
             return this.state.json
         }).catch(err => err);
     }
 
     async handleRefresh(event) {
         event.preventDefault();
+        console.log('refresh');
         let url = "http://localhost:9000/worldDB";
         await fetch(url)
         .then(function(response){
@@ -112,13 +115,35 @@ export default class WorldChart extends React.Component {
         }).catch(err => err);
     }
 
+    async loadCountries() {
+        let url = "http://localhost:9000/worldDB/countrylist";
+        await fetch(url)
+        .then((response) => {
+            return response.json();
+        }).then(data => {
+            let countryList = data.map(country => {
+              return {value: country, display: country}
+            });
+            this.setState({
+              countrylist: [{value: '', display: '(Select a country)'}].concat(countryList)
+            });
+        }).catch(error => {
+            console.log(error);
+        });
+    }
+
+
+
     async componentDidMount() {
-        if (this.state.firstLoad) {
-            const url = "https://api.covid19api.com/summary";
-            const response = await fetch(url);
-            const data = await response.json();
-            this.setState({loading: false, json: data.Countries, firstLoad: false});
-        }
+        // // pulls data from public api on refresh
+        // if (this.state.firstLoad) {
+        //     const url = "https://api.covid19api.com/summary";
+        //     const response = await fetch(url);
+        //     const data = await response.json();
+        //     this.setState({loading: false, json: data.Countries, firstLoad: false});
+        // }
+        await this.callDB();
+        this.setState({loading: false});
     }
 
     render() {
@@ -137,12 +162,12 @@ export default class WorldChart extends React.Component {
         } else {
             return (
                 <div style={{ display: "flex", flexWrap: "wrap", paddingLeft: "10%", marginTop: -50 }}>
-                    {/* <div style={{minWidth: "20%"}}> */}
-                        <button onClick={this.handleRefresh}>Refresh</button>
-                        <button onClick={this.handleReset}>Reset</button>
-                    {/* </div> */}
+                    <div style={{minWidth: "20%", marginTop: 80}}>
+                        <button onClick={this.handleRefresh} style={{margin: 10, padding: 10}}>Refresh</button>
+                        <button onClick={this.handleReset} style={{margin: 10, padding: 10}}>Reset</button>
+                    </div>
                     <VictoryChart
-                        style={{ parent: { maxWidth: "80%" } }}
+                        style={{ parent: { maxWidth: "80%" }}}
                         height={400}
                         width={500}
                         padding={100}

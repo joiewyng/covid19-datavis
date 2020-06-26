@@ -50,7 +50,6 @@ router.post("/", function(req, res){
                 }
             }); 
         }
-        return;
     }).then(function(){
         updatedDocs = collection.find().toArray();
         return updatedDocs;

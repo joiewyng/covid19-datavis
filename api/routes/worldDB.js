@@ -28,6 +28,21 @@ router.get("/", function(req, res){
     });  
 })
 
+router.get("/countrylist", function(req, res){
+    MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client){
+        db = client.db(dbName);
+        collection = db.collection(collectionName);
+        // pull all docs from 'countrydata' collection
+        let docs = collection.find({}, {Country:1, _id:0}).toArray();
+        return docs;
+    }).then(function(docs){
+        res.send(docs);
+        return docs;
+    }).catch(function(err){
+        console.log("error: " + err);
+    });  
+})
+
 router.post("/", function(req, res){
     queryObject = url.parse(req.url,true).query;
     MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client){

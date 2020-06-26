@@ -35,7 +35,8 @@ export default class WorldChart extends React.Component {
         json: {},
         countryCode: '',
         firstLoad: true,
-        countryList: [],
+        countryList: [{value: '', display: '-- Select a country --'}],
+        selectedCountry: '',
     };
         // this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -112,24 +113,23 @@ export default class WorldChart extends React.Component {
         }).catch(err => err);
     }
 
-    async loadCountries() {
+   async loadCountries() {
         let url = "http://localhost:9000/worldDB/countrylist";
         await fetch(url)
         .then((response) => {
             return response.json();
         }).then(data => {
             let countryList = data.map(country => {
-              return {value: country, display: country}
+              return {value: country.Country, display: country.Country}
             });
             this.setState({
-              countrylist: [{value: '', display: '(Select a country)'}].concat(countryList)
+              countryList: [{value: '', display: '-- Select a country --'}].concat(countryList)
             });
+            console.log(countryList[0]);
         }).catch(error => {
             console.log(error);
         });
     }
-
-
 
     async componentDidMount() {
         // // pulls data from public api on refresh
@@ -140,6 +140,7 @@ export default class WorldChart extends React.Component {
         //     this.setState({loading: false, json: data.Countries, firstLoad: false});
         // }
         await this.callDB();
+        await this.loadCountries();
         this.setState({loading: false});
     }
 
@@ -162,6 +163,18 @@ export default class WorldChart extends React.Component {
                     <div style={{minWidth: "20%", marginTop: 80}}>
                         <button onClick={this.handleRefresh} style={{margin: 10, padding: 10}}>Refresh</button>
                         <button onClick={this.handleReset} style={{margin: 10, padding: 10}}>Reset</button>
+                        <div>
+                            <select 
+                                style={{padding:3, margin: 10}}
+                                value={this.state.selectedCountry}
+                                onChange={(e) => this.setState({selectedCountry: e.target.value})}>
+                            >
+                                {console.log(this.state.selectedCountry)}
+                                {this.state.countryList.map((country) => 
+                                <option key={country.value} value={country.value}>{country.display}</option>
+                                )}
+                            </select>
+                        </div>
                     </div>
                     <VictoryChart
                         style={{ parent: { maxWidth: "80%" }}}

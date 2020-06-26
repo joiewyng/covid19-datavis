@@ -9,9 +9,9 @@ export default class Data extends React.Component {
         return (
             <div className="Data">
                 <h1 style={{marginTop: 50}}>COVID-19</h1>
-                <USAData/>
-                <BubbleChart/>
                 <WorldChart />
+                <USAData/>
+                {/* <BubbleChart/> */}
             </div>
         );
     }

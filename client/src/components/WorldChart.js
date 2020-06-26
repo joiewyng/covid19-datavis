@@ -40,6 +40,10 @@ export default class WorldChart extends React.Component {
         totalDeaths: '',
         totalRecovered: '',
         totalConfirmed: '',
+        newCountryName: '',
+        newTotalDeaths: '',
+        newTotalRecovered: '',
+        newTotalConfirmed: '',
     };
         // this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -50,6 +54,11 @@ export default class WorldChart extends React.Component {
         this.handleRecoveredChange = this.handleRecoveredChange.bind(this);
         this.handleConfirmedChange = this.handleConfirmedChange.bind(this);
         this.updateCountryData = this.updateCountryData.bind(this);
+        this.handleNewCountryName = this.handleNewCountryName.bind(this);
+        this.handleNewDeathsChange = this.handleNewDeathsChange.bind(this);
+        this.handleNewRecoveredChange = this.handleNewRecoveredChange.bind(this);
+        this.handleNewConfirmedChange = this.handleNewConfirmedChange.bind(this);
+        this.addCountry = this.addCountry.bind(this);
     }
 
     bubbleChartData(json, metric) {
@@ -62,6 +71,7 @@ export default class WorldChart extends React.Component {
             country: obj.Country,
             countryCode: obj.CountryCode
         }));
+        console.log(bubbleData);
         return bubbleData;
     }
 
@@ -87,11 +97,12 @@ export default class WorldChart extends React.Component {
     }
 
     findMax(array, prop){
-        if (array.length !== 0){
+        // if (array.length !== 0){
             let maxObj = array.reduce((max, val) => val[prop] > max[prop] ? val : max);
             let max = maxObj[prop];
+            console.log(max);
             return max;
-        }
+        // }
     }
 
     async handleReset(event) {
@@ -173,6 +184,26 @@ export default class WorldChart extends React.Component {
         }).catch(err => err);
     }
 
+    async addCountryRequest() {
+        let url = "http://localhost:9000/worldDB/addcountry";
+        await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({
+                Country: this.state.newCountryName,
+                TotalConfirmed: this.state.newTotalConfirmed,
+                TotalDeaths: this.state.newTotalDeaths,
+                TotalRecovered: this.state.newTotalRecovered,
+            }),
+            headers: {"Content-Type": "application/json"}
+        }).then(function(response){
+            return response.json();
+        }).then(dataJson => {
+            this.setState({json: Array.from(dataJson)});
+            console.log(JSON.stringify(dataJson));
+            return this.state.json
+        }).catch(err => err);
+    }
+
     handleDeathsChange(event){
         this.setState({totalDeaths: event.target.value});
     }
@@ -182,6 +213,19 @@ export default class WorldChart extends React.Component {
     handleConfirmedChange(event){
         this.setState({totalConfirmed: event.target.value});
     }
+    handleNewCountryName(event){
+        console.log(event.target.value);
+        this.setState({newCountryName: event.target.value});
+    }
+    handleNewDeathsChange(event){
+        this.setState({newTotalDeaths: event.target.value});
+    }
+    handleNewRecoveredChange(event){
+        this.setState({newTotalRecovered: event.target.value});
+    }
+    handleNewConfirmedChange(event){
+        this.setState({newTotalConfirmed: event.target.value});
+    }
 
     async updateCountryData(event){
         event.preventDefault();
@@ -190,7 +234,15 @@ export default class WorldChart extends React.Component {
         console.log(this.state.totalRecovered);
         console.log(this.state.totalConfirmed);
         await this.updateCountryDataRequest();
-        
+    }
+
+    async addCountry(event){
+        event.preventDefault();
+        console.log(this.state.newCountryName);
+        console.log(this.state.newTotalDeaths);
+        console.log(this.state.newTotalRecovered);
+        console.log(this.state.newTotalConfirmed);
+        await this.addCountryRequest();
     }
 
     async componentDidMount() {
@@ -221,50 +273,8 @@ export default class WorldChart extends React.Component {
             );
         } else {
             return (
-                <div style={{ display: "flex", flexWrap: "wrap", paddingLeft: "10%", marginTop: -50 }}>
-                    <div style={{minWidth: "20%", marginTop: 80}}>
-                        <button onClick={this.handleRefresh} style={{margin: 10, padding: 10}}>Refresh</button>
-                        <button onClick={this.handleReset} style={{margin: 10, padding: 10}}>Reset</button>
-                        <div>
-                            <select 
-                                style={{padding:3, margin: 20}}
-                                value={this.state.selectedCountry}
-                                onChange={async(e) => {
-                                    await this.setState({selectedCountry: e.target.value});
-                                    if (this.state.selectedCountry !== ''){
-                                        this.loadCountryData();
-                                    }
-                                }}>
-                            >
-                                {console.log(this.state.selectedCountry)}
-                                {this.state.countryList.map((country) => 
-                                <option key={country.value} value={country.value}>{country.display}</option>
-                                )}
-                            </select>
-                        </div>
-                        <form onSubmit={this.updateCountryData}>
-                            <div>
-                                <label style={{width: 70, float: 'left', margin: 10}}>
-                                    Deaths:  
-                                </label>
-                                <input type="text" value={this.state.totalDeaths} onChange={this.handleDeathsChange} style={{margin: 10}}/>
-                            </div>
-                            <div>
-                                <label style={{width: 70, float: 'left', margin: 10}}>
-                                    Recovered:
-                                </label>
-                                <input type="text" value={this.state.totalRecovered} onChange={this.handleRecoveredChange} style={{margin: 10}}/>
-                            </div>
-                            <div>
-                                <label style={{width: 70, float: 'left', margin: 10}}>
-                                    Confirmed:
-                                </label>
-                                <input type="text" value={this.state.totalConfirmed} onChange={this.handleConfirmedChange} style={{margin: 10}}/>
-                            </div>
-                            
-                            <input type="submit" value="Update" style={{margin: 10, float: 'right'}}/>
-                        </form>
-                    </div>
+                <div style={{ display: "flex", flexWrap: "wrap", padding: "5%", marginTop: -50 }}>
+                   
                     <VictoryChart
                         style={{ parent: { maxWidth: "70%" }}}
                         height={400}
@@ -327,6 +337,79 @@ export default class WorldChart extends React.Component {
                         >
                         </VictoryScatter>
                     </VictoryChart>
+                    <div style={{minWidth: "20%", marginTop: 80}}>
+                        <button onClick={this.handleRefresh} style={{margin: 10, padding: 5}}>Refresh</button>
+                        <button onClick={this.handleReset} style={{margin: 10, padding: 5}}>Reset</button>
+                        <div>
+                            <select 
+                                style={{padding:3, margin: 20}}
+                                value={this.state.selectedCountry}
+                                onChange={async(e) => {
+                                    await this.setState({selectedCountry: e.target.value});
+                                    if (this.state.selectedCountry !== ''){
+                                        this.loadCountryData();
+                                    }
+                                }}>
+                            >
+                                {console.log(this.state.selectedCountry)}
+                                {this.state.countryList.map((country) => 
+                                <option key={country.value} value={country.value}>{country.display}</option>
+                                )}
+                            </select>
+                        </div>
+                        <form onSubmit={this.updateCountryData}>
+                            <div>
+                                <label style={{width: 70, float: 'left', margin: 10}}>
+                                    Deaths:  
+                                </label>
+                                <input type="text" value={this.state.totalDeaths} onChange={this.handleDeathsChange} style={{margin: 10}}/>
+                            </div>
+                            <div>
+                                <label style={{width: 70, float: 'left', margin: 10}}>
+                                    Recovered:
+                                </label>
+                                <input type="text" value={this.state.totalRecovered} onChange={this.handleRecoveredChange} style={{margin: 10}}/>
+                            </div>
+                            <div>
+                                <label style={{width: 70, float: 'left', margin: 10}}>
+                                    Confirmed:
+                                </label>
+                                <input type="text" value={this.state.totalConfirmed} onChange={this.handleConfirmedChange} style={{margin: 10}}/>
+                            </div>
+                            
+                            <input type="submit" value="Update" style={{margin: 10, float: 'right'}}/>
+                        </form>
+                        <br/><br/>
+                        <form onSubmit={this.addCountry}>
+                            <div style={{margin: 10}}><strong>Add a Country</strong></div>
+                            <div>
+                                <label style={{width: 70, float: 'left', margin: 10}}>
+                                    Name:  
+                                </label>
+                                <input type="text" value={this.state.newCountryName} onChange={this.handleNewCountryName} style={{margin: 10}}/>
+                            </div>
+                            <div>
+                                <label style={{width: 70, float: 'left', margin: 10}}>
+                                    Deaths:  
+                                </label>
+                                <input type="text" value={this.state.newTotalDeaths} onChange={this.handleNewDeathsChange} style={{margin: 10}}/>
+                            </div>
+                            <div>
+                                <label style={{width: 70, float: 'left', margin: 10}}>
+                                    Recovered:
+                                </label>
+                                <input type="text" value={this.state.newTotalRecovered} onChange={this.handleNewRecoveredChange} style={{margin: 10}}/>
+                            </div>
+                            <div>
+                                <label style={{width: 70, float: 'left', margin: 10}}>
+                                    Confirmed:
+                                </label>
+                                <input type="text" value={this.state.newTotalConfirmed} onChange={this.handleNewConfirmedChange} style={{margin: 10}}/>
+                            </div>
+                            
+                            <input type="submit" value="Add" style={{margin: 10, float: 'right'}}/>
+                        </form>
+                    </div>
                 </div>
             ); 
         }

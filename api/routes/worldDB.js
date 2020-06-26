@@ -43,6 +43,24 @@ router.get("/countrylist", function(req, res){
     });  
 })
 
+router.get("/country", function(req, res){
+    queryObject = url.parse(req.url,true).query;
+    MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client){
+        db = client.db(dbName);
+        collection = db.collection(collectionName);
+        let countryName = queryObject.name;
+        if (countryName !== ''){
+            let countryData = collection.find({Country: {$eq:countryName}}).toArray();
+            return countryData;
+        }
+    }).then(function(docs){
+        res.send(docs);
+        return docs;
+    }).catch(function(err){
+        console.log("error: " + err);
+    });  
+})
+
 router.post("/", function(req, res){
     queryObject = url.parse(req.url,true).query;
     MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client){

@@ -94,4 +94,33 @@ router.post("/", function(req, res){
     });  
 })
 
+router.post("/country", function(req, res){
+    queryObject = url.parse(req.url,true).query;
+    MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client){
+        db = client.db(dbName);
+        collection = db.collection(collectionName);
+        let countryName = queryObject.name;
+        if (countryName !== ''){
+            let data = req.body;
+            console.log('req body' + JSON.stringify(req.body));
+            let update = {$set: {
+                TotalDeaths : data.totalDeaths,
+                TotalRecovered : data.totalRecovered,
+                TotalConfirmed : data.totalConfirmed,
+            }}
+            console.log('countryname: '+countryName)
+            let countryData = collection.updateOne({Country: countryName}, update, err => console.log(err));
+            return countryData;
+        }
+    }).then(function(){
+        updatedDocs = collection.find().toArray();
+        return updatedDocs;
+    }).then(function(docs){
+        res.send(docs);
+        return docs;
+    }).catch(function(err){
+        console.log("error: " + err);
+    });  
+})
+
 module.exports = router;

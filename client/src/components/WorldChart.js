@@ -103,7 +103,6 @@ export default class WorldChart extends React.Component {
             return response.json();
         }).then(dataJson => {
             this.setState({json: Array.from(dataJson)});
-            console.log('why??');
             return this.state.json
         }).catch(err => err);
     }
@@ -156,6 +155,24 @@ export default class WorldChart extends React.Component {
         // console.log(this.state.countryData[0].TotalDeaths);
     }
 
+    async updateCountryDataRequest() {
+        let url = "http://localhost:9000/worldDB/country?name="+this.state.selectedCountry;
+        await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({
+                totalDeaths: this.state.totalDeaths,
+                totalRecovered: this.state.totalRecovered,
+                totalConfirmed: this.state.totalConfirmed,
+            }),
+            headers: {"Content-Type": "application/json"}
+        }).then(function(response){
+            return response.json();
+        }).then(dataJson => {
+            this.setState({json: Array.from(dataJson)});
+            return this.state.json
+        }).catch(err => err);
+    }
+
     handleDeathsChange(event){
         this.setState({totalDeaths: event.target.value});
     }
@@ -166,11 +183,14 @@ export default class WorldChart extends React.Component {
         this.setState({totalConfirmed: event.target.value});
     }
 
-    updateCountryData(event){
+    async updateCountryData(event){
+        event.preventDefault();
+        console.log(this.state.selectedCountry);
         console.log(this.state.totalDeaths);
         console.log(this.state.totalRecovered);
         console.log(this.state.totalConfirmed);
-        event.preventDefault();
+        await this.updateCountryDataRequest();
+        
     }
 
     async componentDidMount() {

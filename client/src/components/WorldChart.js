@@ -34,6 +34,8 @@ export default class WorldChart extends React.Component {
         json: {},
         countryCode: '',
         firstLoad: true,
+        fileList: [{value: '', display: '-- Select a dataset --'}],
+        selectedFile: '',
         countryList: [{value: '', display: '-- Select a country --'}],
         selectedCountry: '',
         totalDeaths: '',
@@ -43,8 +45,10 @@ export default class WorldChart extends React.Component {
         newTotalDeaths: '',
         newTotalRecovered: '',
         newTotalConfirmed: '',
+        selectedBubbleMetric: 'amount',
     };
         // this.handleChange = this.handleChange.bind(this);
+        this.handleSave = this.handleSave.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
         this.handleReset = this.handleReset.bind(this);
@@ -134,7 +138,7 @@ export default class WorldChart extends React.Component {
 
     async handleRestore(event) {
         event.preventDefault();
-        let url = "http://localhost:9000/worldDB?restore=true"
+        let url = "http://localhost:9000/worldDB?restore=true&file=" + this.state.selectedFile;
         await fetch(url, {
             method: 'POST'
         }).then(function(response){
@@ -144,6 +148,19 @@ export default class WorldChart extends React.Component {
             console.log('restore');
             console.log(JSON.stringify(dataJson));
             return this.state.json
+        }).catch(err => err);
+    }
+
+    async handleSave(event) {
+        // event.preventDefault();
+        let url = "http://localhost:9000/worldDB?save=true"
+        await fetch(url, {
+            method: 'POST'
+        }).then(function(response){
+            return response.json();
+        }).then(dataJson => {
+            console.log('saved');
+            return dataJson
         }).catch(err => err);
     }
 
@@ -164,6 +181,23 @@ export default class WorldChart extends React.Component {
         });
     }
 
+    async loadFileNames() {
+        let url = "http://localhost:9000/worldDB/filelist";
+        await fetch(url)
+        .then((response) => {
+            return response.json();
+        }).then(data => {
+            let fileList = data.map(file => {
+              return {value: file, display: file}
+            });
+            this.setState({
+              fileList: [{value: '', display: '-- Select a dataset --'}].concat(fileList)
+            });
+        }).catch(error => {
+            console.log(error);
+        });
+    }
+
     async loadCountryData() {
         console.log('country data loaded');
         let url = "http://localhost:9000/worldDB/country?name="+this.state.selectedCountry;
@@ -178,9 +212,6 @@ export default class WorldChart extends React.Component {
                 // countryData: dataJson,
             })
         })
-        
-        // console.log(JSON.stringify(this.state.countryData));
-        // console.log(this.state.countryData[0].TotalDeaths);
     }
 
     handleDeathsChange(event){
@@ -264,6 +295,7 @@ export default class WorldChart extends React.Component {
         //     this.setState({loading: false, json: data.Countries, firstLoad: false});
         // }
         await this.callDB();
+        await this.loadFileNames();
         await this.loadCountries();
         this.setState({loading: false});
     }
@@ -275,11 +307,10 @@ export default class WorldChart extends React.Component {
 
         if (this.state.countryCode !== ''){
             return(
-                <>
+            <>
                 <button onClick= {() => this.setState({countryCode: ''})}>Back to World Chart</button>
-
                 <CountryChart countryCode={this.state.countryCode}/>
-                </>
+            </>
             );
         } else {
             return (
@@ -305,7 +336,15 @@ export default class WorldChart extends React.Component {
                                     x: [0, this.findMax(this.bubbleChartData(this.state.json, 'TotalRecovered'), 'x')*1.2],
                                     y: [0, this.findMax(this.bubbleChartData(this.state.json, 'TotalRecovered'), 'y')*1.2]
                                 }}
-                                labels={({ datum }) => `${datum.country}: ${datum.amount} confirmed case(s)`}
+                                labels={({ datum }) => {
+                                    if (this.state.selectedBubbleMetric == 'amount'){
+                                        return `${datum.country}: ${datum.amount} confirmed case(s)`
+                                    } else if (this.state.selectedBubbleMetric == 'x'){
+                                        return `${datum.country}: ${datum.x} recoveries`
+                                    } else {
+                                        return `${datum.country}: ${datum.y} deaths`
+                                    }
+                                }}
                             />
                         }
                     >   
@@ -329,7 +368,7 @@ export default class WorldChart extends React.Component {
                         ></VictoryAxis>
                         <VictoryScatter
                             style={{ data: { fill: "#c43a31", opacity: "50%" } }}
-                            bubbleProperty="amount"
+                            bubbleProperty={this.state.selectedBubbleMetric}
                             maxBubbleSize={20}
                             minBubbleSize={1}
                             data={this.bubbleChartData(this.state.json, 'TotalRecovered')}
@@ -347,9 +386,41 @@ export default class WorldChart extends React.Component {
                         </VictoryScatter>
                     </VictoryChart>
                     <div style={{minWidth: "20%", marginTop: 80}}>
+                        <div> Bubble Size: 
+                            <select 
+                                style={{padding:3, margin: 20}}
+                                value={this.state.selectedDataFile}
+                                onChange={async(e) => {
+                                    await this.setState({selectedBubbleMetric: e.target.value});
+                                }}>
+                            >
+                                
+                                <option key='Confirmed' value='amount'>Confirmed</option>
+                                <option key='Recovered' value='x'>Recoveries</option>
+                                <option key='Deaths' value='y'>Deaths</option>
+                            </select>
+                        </div>
                         <button onClick={this.handleRefresh} style={{margin: 10, padding: 5}}>Refresh</button>
+                        <button onClick={this.handleSave} style={{margin: 10, padding: 5}}>Save Dataset</button>
                         <button onClick={this.handleReset} style={{margin: 10, padding: 5}}>Reset</button>
-                        <button onClick={this.handleRestore} style={{margin: 10, padding: 5}}>Restore</button>
+                        
+                        <div>
+                            <select 
+                                style={{padding:3, margin: 20}}
+                                value={this.state.selectedDataFile}
+                                onChange={async(e) => {
+                                    await this.setState({selectedFile: e.target.value});
+                                    if (this.state.selectedFile !== ''){
+                                        this.loadFileNames();
+                                    }
+                                }}>
+                            >
+                                {this.state.fileList.map((file) => 
+                                <option key={file.value} value={file.value}>{file.display}</option>
+                                )}
+                            </select>
+                            <button onClick={this.handleRestore} style={{margin: 8, padding: 5}}>Restore</button>
+                        </div>
                         <div>
                             <select 
                                 style={{padding:3, margin: 20}}

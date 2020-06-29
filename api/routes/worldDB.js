@@ -43,6 +43,12 @@ router.get("/countrylist", function(req, res){
     });  
 })
 
+router.get("/filelist", function(req, res){
+    let files = fs.readdirSync('./data/usersaved/'); 
+    console.log(files);
+    res.send(files);
+})
+
 router.get("/country", function(req, res){
     queryObject = url.parse(req.url,true).query;
     MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client){
@@ -66,6 +72,8 @@ router.post("/", function(req, res){
     MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client){
         db = client.db(dbName);
         collection = db.collection(collectionName);
+        let files = fs.readdirSync('./data/usersaved/'); 
+        let file = queryObject.file;
         let docs;
         if (queryObject.reset){
             fs.readFile("./data/countrydatalocal.json", function(err, data) { 
@@ -82,8 +90,9 @@ router.post("/", function(req, res){
                     })   
                 }
             }); 
-        } else if (queryObject.restore){
-            fs.readFile("./data/tempcountrydata.json", function(err, data) { 
+        } else if (queryObject.restore && files.includes(file)){
+            console.log(file);
+            fs.readFile("./data/usersaved/"+file, function(err, data) { 
                 if (err) {
                     console.log(err);
                 } else {
@@ -96,11 +105,24 @@ router.post("/", function(req, res){
                         })
                     })   
                 }
-            }); 
+            });    
         }
     }).then(function(){
         updatedDocs = collection.find().toArray();
         return updatedDocs;
+    }).then(function(docs) {
+        if (queryObject.save){
+            let fileName = './data/usersaved/'+ Date.now()+'.json';
+            let json = JSON.stringify(docs);
+            fs.writeFile(fileName, json, 'utf8', function callback(err, res){
+                if (err){
+                    console.log(err);
+                } else {
+                console.log('Saved data in ' + fileName); 
+                }
+            });
+            return docs;
+        }
     }).then(function(docs){
         res.send(docs);
         return docs;
@@ -109,7 +131,21 @@ router.post("/", function(req, res){
     });  
 })
 
-
+// }).then(function(docs){
+//     fs.readFile("./data/tempcountrydata.json", function(err, data) { 
+//         if (err) {
+//             console.log(err);
+//         } else {
+//             docs = JSON.parse(data); 
+//             collection.deleteMany({}, function(){
+//                 collection.insertMany(docs, function(err,r){
+//                     if (err){
+//                         console.log("Issue inserting into DB: " + err);
+//                     }
+//                 })
+//             })   
+//         }
+//     }); 
 
 router.post("/country", function(req, res){
     queryObject = url.parse(req.url,true).query;
@@ -128,35 +164,6 @@ router.post("/country", function(req, res){
             let countryData = collection.updateOne({Country: {$eq: countryName}}, update, (err) => {if (err) console.log(err)});
             return countryData;
         }
-    }).then(function(){
-        updatedDocs = collection.find().toArray();
-        return updatedDocs;
-    }).then(function(docs){
-        let fileName = './data/tempcountrydata.json';
-        let json = JSON.stringify(docs);
-        fs.writeFile(fileName, json, 'utf8', function callback(err, res){
-            if (err){
-                console.log(err);
-            } else {
-            console.log('Saved temp data in ' + fileName); 
-            }
-        });
-        return docs;
-    }).then(function(docs){
-        fs.readFile("./data/tempcountrydata.json", function(err, data) { 
-            if (err) {
-                console.log(err);
-            } else {
-                docs = JSON.parse(data); 
-                collection.deleteMany({}, function(){
-                    collection.insertMany(docs, function(err,r){
-                        if (err){
-                            console.log("Issue inserting into DB: " + err);
-                        }
-                    })
-                })   
-            }
-        }); 
     }).then(function(){
         updatedDocs = collection.find().toArray();
         return updatedDocs;

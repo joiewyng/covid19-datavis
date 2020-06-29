@@ -82,6 +82,21 @@ router.post("/", function(req, res){
                     })   
                 }
             }); 
+        } else if (queryObject.restore){
+            fs.readFile("./data/tempcountrydata.json", function(err, data) { 
+                if (err) {
+                    console.log(err);
+                } else {
+                    docs = JSON.parse(data); 
+                    collection.deleteMany({}, function(){
+                        collection.insertMany(docs, function(err,r){
+                            if (err){
+                                console.log("Issue inserting into DB: " + err);
+                            }
+                        })
+                    })   
+                }
+            }); 
         }
     }).then(function(){
         updatedDocs = collection.find().toArray();
@@ -93,6 +108,8 @@ router.post("/", function(req, res){
         console.log("error: " + err);
     });  
 })
+
+
 
 router.post("/country", function(req, res){
     queryObject = url.parse(req.url,true).query;
@@ -108,20 +125,65 @@ router.post("/country", function(req, res){
                 TotalRecovered : data.totalRecovered,
                 TotalConfirmed : data.totalConfirmed,
             }}
-            // console.log('countryname: '+countryName)
-            let countryData = collection.updateOne({Country: countryName}, update, err => console.log(err));
+            let countryData = collection.updateOne({Country: {$eq: countryName}}, update, (err) => {if (err) console.log(err)});
             return countryData;
         }
     }).then(function(){
         updatedDocs = collection.find().toArray();
         return updatedDocs;
     }).then(function(docs){
-        res.send(docs);
+        let fileName = './data/tempcountrydata.json';
+        let json = JSON.stringify(docs);
+        fs.writeFile(fileName, json, 'utf8', function callback(err, res){
+            if (err){
+                console.log(err);
+            } else {
+            console.log('Saved temp data in ' + fileName); 
+            }
+        });
         return docs;
+    }).then(function(docs){
+        fs.readFile("./data/tempcountrydata.json", function(err, data) { 
+            if (err) {
+                console.log(err);
+            } else {
+                docs = JSON.parse(data); 
+                collection.deleteMany({}, function(){
+                    collection.insertMany(docs, function(err,r){
+                        if (err){
+                            console.log("Issue inserting into DB: " + err);
+                        }
+                    })
+                })   
+            }
+        }); 
+    }).then(function(){
+        updatedDocs = collection.find().toArray();
+        return updatedDocs;
+    }).then(function(docs){
+        res.send(docs);
     }).catch(function(err){
         console.log("error: " + err);
     });  
 })
+
+// MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client) {
+//     db = client.db(dbName);
+//     collection = db.collection(collectionName);
+//     let docs = collection.find().toArray();
+//     return docs;
+// }).then(function(docs){
+//     let fileName = './data/'+collectionName+'local.json';
+//     let json = JSON.stringify(docs);
+//     fs.writeFile(fileName, json, 'utf8', function callback(err, res){
+//         if (err){
+//             console.log(err);
+//         } else {
+//            console.log('Saved data in '+collectionName+' as '+fileName); 
+//         }
+//     });
+//     return docs;
+// }).catch((err) => errCallback(err));  
 
 router.post("/addcountry", function(req, res){
     queryObject = url.parse(req.url,true).query;

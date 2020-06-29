@@ -24,7 +24,6 @@ const VictoryZoomVoronoiContainer = createContainer("zoom", "voronoi");
     
 
 
-
 export default class WorldChart extends React.Component {
     
 
@@ -49,6 +48,7 @@ export default class WorldChart extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
         this.handleReset = this.handleReset.bind(this);
+        this.handleRestore = this.handleRestore.bind(this);
         this.bubbleChartData = this.bubbleChartData.bind(this);
         this.handleDeathsChange = this.handleDeathsChange.bind(this);
         this.handleRecoveredChange = this.handleRecoveredChange.bind(this);
@@ -62,7 +62,7 @@ export default class WorldChart extends React.Component {
     }
 
     bubbleChartData(json, metric) {
-        console.log(JSON.stringify(json[0]));
+        // console.log(JSON.stringify(json[0]));
         let array = json;
         let bubbleData = array.map(obj => ({
             x: obj[metric],
@@ -71,7 +71,7 @@ export default class WorldChart extends React.Component {
             country: obj.Country,
             countryCode: obj.CountryCode
         }));
-        console.log(bubbleData);
+        // console.log(bubbleData);
         return bubbleData;
     }
 
@@ -114,6 +114,8 @@ export default class WorldChart extends React.Component {
             return response.json();
         }).then(dataJson => {
             this.setState({json: Array.from(dataJson)});
+            console.log('reset:')
+            console.log(JSON.stringify(dataJson));
             return this.state.json
         }).catch(err => err);
     }
@@ -126,6 +128,21 @@ export default class WorldChart extends React.Component {
             return response.json();
         }).then(dataJson => {
             this.setState({json: Array.from(dataJson)});
+            return this.state.json
+        }).catch(err => err);
+    }
+
+    async handleRestore(event) {
+        event.preventDefault();
+        let url = "http://localhost:9000/worldDB?restore=true"
+        await fetch(url, {
+            method: 'POST'
+        }).then(function(response){
+            return response.json();
+        }).then(dataJson => {
+            this.setState({json: Array.from(dataJson)});
+            console.log('restore');
+            console.log(JSON.stringify(dataJson));
             return this.state.json
         }).catch(err => err);
     }
@@ -166,6 +183,29 @@ export default class WorldChart extends React.Component {
         // console.log(this.state.countryData[0].TotalDeaths);
     }
 
+    handleDeathsChange(event){
+        this.setState({totalDeaths: Number(event.target.value)});
+    }
+    handleRecoveredChange(event){
+        this.setState({totalRecovered:  Number(event.target.value)});
+    }
+    handleConfirmedChange(event){
+        this.setState({totalConfirmed:  Number(event.target.value)});
+    }
+    handleNewCountryName(event){
+        console.log(event.target.value);
+        this.setState({newCountryName: event.target.value});
+    }
+    handleNewDeathsChange(event){
+        this.setState({newTotalDeaths: Number(event.target.value)});
+    }
+    handleNewRecoveredChange(event){
+        this.setState({newTotalRecovered: Number(event.target.value)});
+    }
+    handleNewConfirmedChange(event){
+        this.setState({newTotalConfirmed: Number(event.target.value)});
+    }
+
     async updateCountryDataRequest() {
         let url = "http://localhost:9000/worldDB/country?name="+this.state.selectedCountry;
         await fetch(url, {
@@ -179,6 +219,7 @@ export default class WorldChart extends React.Component {
         }).then(function(response){
             return response.json();
         }).then(dataJson => {
+            console.log(Array.from(dataJson));
             this.setState({json: Array.from(dataJson)});
             return this.state.json
         }).catch(err => err);
@@ -204,44 +245,13 @@ export default class WorldChart extends React.Component {
         }).catch(err => err);
     }
 
-    handleDeathsChange(event){
-        this.setState({totalDeaths: event.target.value});
-    }
-    handleRecoveredChange(event){
-        this.setState({totalRecovered: event.target.value});
-    }
-    handleConfirmedChange(event){
-        this.setState({totalConfirmed: event.target.value});
-    }
-    handleNewCountryName(event){
-        console.log(event.target.value);
-        this.setState({newCountryName: event.target.value});
-    }
-    handleNewDeathsChange(event){
-        this.setState({newTotalDeaths: event.target.value});
-    }
-    handleNewRecoveredChange(event){
-        this.setState({newTotalRecovered: event.target.value});
-    }
-    handleNewConfirmedChange(event){
-        this.setState({newTotalConfirmed: event.target.value});
-    }
-
     async updateCountryData(event){
         event.preventDefault();
-        console.log(this.state.selectedCountry);
-        console.log(this.state.totalDeaths);
-        console.log(this.state.totalRecovered);
-        console.log(this.state.totalConfirmed);
         await this.updateCountryDataRequest();
     }
 
     async addCountry(event){
         event.preventDefault();
-        console.log(this.state.newCountryName);
-        console.log(this.state.newTotalDeaths);
-        console.log(this.state.newTotalRecovered);
-        console.log(this.state.newTotalConfirmed);
         await this.addCountryRequest();
     }
 
@@ -274,7 +284,6 @@ export default class WorldChart extends React.Component {
         } else {
             return (
                 <div style={{ display: "flex", flexWrap: "wrap", padding: "5%", marginTop: -50 }}>
-                   
                     <VictoryChart
                         style={{ parent: { maxWidth: "70%" }}}
                         height={400}
@@ -314,7 +323,7 @@ export default class WorldChart extends React.Component {
                         ></VictoryAxis>
                         <VictoryAxis
                             dependentAxis
-                            tickFormat={(x) => (`${x / 1000}k`)}
+                            tickFormat={(x, i, ticks) => (`${x / 1000}k`)}
                             label="Total Deaths"
                             style={sharedAxisStyles}
                         ></VictoryAxis>
@@ -340,6 +349,7 @@ export default class WorldChart extends React.Component {
                     <div style={{minWidth: "20%", marginTop: 80}}>
                         <button onClick={this.handleRefresh} style={{margin: 10, padding: 5}}>Refresh</button>
                         <button onClick={this.handleReset} style={{margin: 10, padding: 5}}>Reset</button>
+                        <button onClick={this.handleRestore} style={{margin: 10, padding: 5}}>Restore</button>
                         <div>
                             <select 
                                 style={{padding:3, margin: 20}}

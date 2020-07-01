@@ -400,6 +400,7 @@ export default class WorldChart extends React.Component {
                                 <option key='Deaths' value='y'>Deaths</option>
                             </select>
                         </div>
+                        <hr></hr>
                         <button onClick={this.handleRefresh} style={{margin: 10, padding: 5}}>Refresh</button>
                         <button onClick={this.handleSave} style={{margin: 10, padding: 5}}>Save Dataset</button>
                         <button onClick={this.handleReset} style={{margin: 10, padding: 5}}>Reset</button>
@@ -421,6 +422,7 @@ export default class WorldChart extends React.Component {
                             </select>
                             <button onClick={this.handleRestore} style={{margin: 8, padding: 5}}>Restore</button>
                         </div>
+                        <hr></hr>
                         <div>
                             <select 
                                 style={{padding:3, margin: 20}}
@@ -461,6 +463,7 @@ export default class WorldChart extends React.Component {
                             <input type="submit" value="Update" style={{margin: 10, float: 'right'}}/>
                         </form>
                         <br/><br/>
+                        <hr></hr>
                         <form onSubmit={this.addCountry}>
                             <div style={{margin: 10}}><strong>Add a Country</strong></div>
                             <div>

@@ -122,7 +122,16 @@ export default class USAData extends React.Component {
 
         <> 
  
-            
+            <form style={{paddingLeft: '50%', marginBottom: '-10px'}} onSubmit={this.handleSubmit}>
+                <label>
+                Pick a state: &nbsp;
+                <select value={this.state.value} onChange={this.handleChange}>
+                    <option value="ny">NY</option>
+                    <option value="ca">CA</option>
+                    <option value="fl">FL</option>
+                </select>
+                </label>
+            </form>
 
            <div style={{ display: "flex", flexWrap: "wrap", paddingLeft: '10%' }}>
 
@@ -142,7 +151,7 @@ export default class USAData extends React.Component {
             }
                 />
               }
-            style={{ parent: { maxWidth: "60%" } }}
+            style={{ parent: { maxWidth: "30%" } }}
             >
                  <VictoryLabel
                     fontSize={10}
@@ -180,7 +189,7 @@ export default class USAData extends React.Component {
                 animate={{
                     duration: 1000
                 }}
-                style={{ parent: { maxWidth: "60%" } }}
+                style={{ parent: { maxWidth: "30%" } }}
             >
                 <VictoryLegend 
                     orientation="vertical"
@@ -235,16 +244,7 @@ export default class USAData extends React.Component {
             </VictoryChart>
 
 
-            <form style={{paddingLeft: '30%', marginBottom: '-10px'}} onSubmit={this.handleSubmit}>
-                <label>
-                Pick a state: &nbsp;
-                <select value={this.state.value} onChange={this.handleChange}>
-                    <option value="ny">NY</option>
-                    <option value="ca">CA</option>
-                    <option value="fl">FL</option>
-                </select>
-                </label>
-            </form>
+            
             <VictoryChart
             height={400}
             width={400}
@@ -252,7 +252,7 @@ export default class USAData extends React.Component {
             animate={{
                 duration: 1000
             }}
-            style={{ parent: { maxWidth: "60%" } }}
+            style={{ parent: { maxWidth: "30%" } }}
             theme={VictoryTheme.material}
             >
                 <VictoryLabel

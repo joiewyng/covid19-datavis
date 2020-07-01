@@ -10,9 +10,14 @@ export default class Nav extends React.Component {
                         Data
                     </button>
                 </Link>
-                <Link to="/manage">
+                <Link to="/manage" style={{marginRight: 20}}>
                     <button>
                         Manage Data
+                    </button>
+                </Link>
+                <Link to="/data2" >
+                    <button>
+                        Data 2
                     </button>
                 </Link>
             </div>

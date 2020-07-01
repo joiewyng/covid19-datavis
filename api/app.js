@@ -10,6 +10,7 @@ var usersRouter = require('./routes/users');
 var testAPIRouter = require('./routes/testAPI');
 var testDBRouter = require("./routes/testDB");
 var worldDBRouter = require("./routes/worldDB");
+var energyDBRouter = require("./routes/energyDB");
 
 var app = express();
 
@@ -29,6 +30,7 @@ app.use('/users', usersRouter);
 app.use("/testAPI", testAPIRouter);
 app.use("/testDB", testDBRouter);
 app.use("/worldDB", worldDBRouter);
+app.use("/energyDB", energyDBRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

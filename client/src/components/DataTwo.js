@@ -9,6 +9,7 @@ import {
     VictoryGroup,
     VictoryLabel,
     VictoryTooltip,
+    VictoryLegend
    } from 'victory';
 export default class DataTwo extends React.Component {
 
@@ -43,7 +44,7 @@ export default class DataTwo extends React.Component {
                 <div className="Data2">
                     <h1 style={{marginTop: 50}}>Energy in the USA</h1>
                     <DonutChart data={this.state.json[0]["Annual Totals"]}/>
-                    <HorizBarChart data={this.state.json}/>
+                    <HorizBarChart data={this.state.json[1]["Year 2018"]}/>
                     <PieChart/>
                 </div>
             );
@@ -101,7 +102,7 @@ class DonutChart extends React.Component {
     calculateSum() {
         let obj = this.props.data[this.state.year];
         let array = Object.entries(obj);
-        let dataArray = array.filter((_, i) => ![0, 9, 10, 11, 12].includes(i));
+        let dataArray = array.filter((_, i) => ![0, 10, 11, 12].includes(i));
         let sum = 0;
         for (let i = 0; i < dataArray.length; i++){
             let value = dataArray[i][1];
@@ -114,8 +115,9 @@ class DonutChart extends React.Component {
     configData () {
         let obj = this.props.data[this.state.year];
         let array = Object.entries(obj);
+        console.log(array);
         // tuple array with each entry containing the key and value
-        let dataArray = array.filter((_, i) => ![0, 9, 10, 11, 12].includes(i));
+        let dataArray = array.filter((_, i) => ![0, 10, 11, 12].includes(i));
         console.log(dataArray);
         let pieData = [];
         if (this.state.sum !== 0){
@@ -144,8 +146,8 @@ class DonutChart extends React.Component {
             <>
             <div style={{marginBottom: -20}}>
                 <strong style={{lineHeight: 3, fontSize: 20}}>Net Generation from Renewable Sources</strong>
-                <div>in Thousand Megawatthours</div>
-                <select style={{margin: 15}}value={this.state.year} onChange={this.handleChange}>
+                <div>MWh = Megawatthours</div>
+                <select style={{margin: 15, padding:5}}value={this.state.year} onChange={this.handleChange}>
                     <option value="0">2010</option>
                     <option value="1">2011</option>
                     <option value="2">2012</option>
@@ -168,7 +170,7 @@ class DonutChart extends React.Component {
                     outerRadius={250}
                     innerRadius={100}
                     labelRadius={160}
-                    labels={({ datum }) => `${datum.percent}% \n -------------- \n${datum.x}`}
+                    labels={({ datum }) => `${datum.percent}% \n -------------- \n${datum.x} \n -------------- \n${datum.y}K MWh `}
                     style={{ labels: { fill: "black", fontSize: 10} }}
                     labelComponent={<CustomLabel />}
                     data={this.configData()}
@@ -182,50 +184,113 @@ class DonutChart extends React.Component {
     }
 }
 
+const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+const energyType = ["wind", "solarPhotovoltaic", "woodFuels", "hydroelectric"];
 class HorizBarChart extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            wind: [],
+            solarPhotovoltaic: [],
+            woodFuels: [],
+            hydroelectric: [],
+            loading: true
+        }
+    }
+    configBarData(){
+        let wind = [];
+        let solar = [];
+        let wood = [];
+        let hydro = [];
+        for (let i = 0; i < this.props.data.length; i++){
+            wind.push(parseFloat(this.props.data[i]["Wind"].replace(/,/g, '')));
+            solar.push(parseFloat(this.props.data[i]["Solar Photovoltaic"].replace(/,/g, '')));
+            wood.push(parseFloat(this.props.data[i]["Wood and Wood-Derived Fuels"].replace(/,/g, '')));
+            hydro.push(parseFloat(this.props.data[i]["Conventional Hydroelectric"].replace(/,/g, '')));
+        }
+        this.setState({
+            wind: wind,
+            solarPhotovoltaic: solar,
+            woodFuels: wood,
+            hydroelectric: hydro
+        })
+    }
+
+    configCategoryData(category){
+        let data = [];
+        for (let i = 0; i < 12; i++){
+            data.push(
+                {
+                    x: months[i],
+                    y:this.state[category][i]
+                }
+            )
+        }
+        console.log(data);
+        return data;
+    }
+
+    componentDidMount(){
+        this.configBarData();
+        this.setState({loading: false});
+    }
     render() {
+        if (this.state.loading 
+            || this.state.wind.length === 0 
+            || this.state.solarPhotovoltaic.length === 0 
+            || this.state.woodFuels.length === 0
+            || this.state.hydroelectric.length === 0){
+            return(<div>loading...</div>);
+        }
         return (
+            <>
+            <strong style={{lineHeight: 3, fontSize: 20}}>Net Generation from Top Four Renewable Sources in 2018</strong>
+            <div>in Thousand Megawatthours</div>
             <div style={{marginLeft: "30%", marginRight: "30%"}}>
                 <VictoryChart
-                theme={VictoryTheme.material}
-                domain={{ y: [0.5, 5.5] }}
+                // theme={VictoryTheme.material}
+                domainPadding={{ y: 12, x: 12 }}
+                domain={{ y: [0.5, 100000] }}
                 >
+                      <VictoryLegend x={300} y={50}
+                        title="Energy Sources"
+                        centerTitle
+                        orientation="vertical"
+                        gutter={15}
+                        style={{ border: { stroke: "black" }, title: {fontSize: 10 } }}
+                        data={[
+                        { name: "Wind", symbol: { fill: "brown"} },
+                        { name: "Hydroelectric", symbol: { fill: "gold" } },
+                        { name: "Solar", symbol: { fill: "tomato" } },
+                        { name: "Wood Fuels", symbol: { fill: "orange" } },
+                        ]}
+                    />
                     <VictoryGroup horizontal
                     offset={10}
-                    style={{ data: { width: 6 } }}
-                    colorScale={["brown", "tomato", "gold"]}
+                    style={{ data: { width: 13 } }}
+                    colorScale={["brown", "gold", "orange", "tomato"]}
                     >
-                    <VictoryBar
-                        data={[
-                        { x: 1, y: 1 },
-                        { x: 2, y: 2 },
-                        { x: 3, y: 3 },
-                        { x: 4, y: 2 },
-                        { x: 5, y: 1 }
-                        ]}
-                    />
-                    <VictoryBar
-                        data={[
-                        { x: 1, y: 2 },
-                        { x: 2, y: 3 },
-                        { x: 3, y: 4 },
-                        { x: 4, y: 5 },
-                        { x: 5, y: 5 }
-                        ]}
-                    />
-                    <VictoryBar
-                        data={[
-                        { x: 1, y: 1 },
-                        { x: 2, y: 2 },
-                        { x: 3, y: 3 },
-                        { x: 4, y: 4 },
-                        { x: 5, y: 4 }
-                        ]}
-                    />
+                    <VictoryStack>
+                        <VictoryBar
+                            data={this.configCategoryData("wind")}
+                      
+                        />
+                        <VictoryBar
+                            data={this.configCategoryData("hydroelectric")}
+                        />
+                        <VictoryBar
+                            data={this.configCategoryData("solarPhotovoltaic")}
+                        />
+                        <VictoryBar
+                            data={this.configCategoryData("woodFuels")}
+                        />
+                         
+                    </VictoryStack>
+                    
                 </VictoryGroup>
                 </VictoryChart>
             </div>
-            
+            </>
         );
     }
 }
@@ -238,7 +303,7 @@ class PieChart extends React.Component {
     render(){
         return (
             <>
-            <div style={{marginLeft: "30%", marginRight: "30%"}}>
+            <div style={{marginLeft: "30%", marginRight: "30%", marginTop: "5%"}}>
                 <VictoryPie
                 // style={{ parent: { minWidth: "50%" }}}
                 colorScale={["tomato", "orange", "gold", "cyan", "navy", "white" ]}

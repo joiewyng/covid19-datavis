@@ -97,6 +97,7 @@ export default class WorldChart extends React.Component {
                 return res.json();
             }).then(json => {
                 this.setState({json: Array.from(json)});
+                console.log(Array.from(json));
             }).catch(err => err);
     }
 
@@ -392,7 +393,7 @@ export default class WorldChart extends React.Component {
                                 value={this.state.selectedDataFile}
                                 onChange={async(e) => {
                                     await this.setState({selectedBubbleMetric: e.target.value});
-                                }}>
+                                }}
                             >
                                 
                                 <option key='Confirmed' value='amount'>Confirmed</option>
@@ -414,7 +415,7 @@ export default class WorldChart extends React.Component {
                                     if (this.state.selectedFile !== ''){
                                         this.loadFileNames();
                                     }
-                                }}>
+                                }}
                             >
                                 {this.state.fileList.map((file) => 
                                 <option key={file.value} value={file.value}>{file.display}</option>
@@ -432,7 +433,7 @@ export default class WorldChart extends React.Component {
                                     if (this.state.selectedCountry !== ''){
                                         this.loadCountryData();
                                     }
-                                }}>
+                                }}
                             >
                                 {console.log(this.state.selectedCountry)}
                                 {this.state.countryList.map((country) => 

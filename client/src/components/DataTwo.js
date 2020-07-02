@@ -21,11 +21,12 @@ export default class DataTwo extends React.Component {
         }
     }
     async callDB() {
-        await fetch("http://localhost:9000/worldDB")
+        await fetch("http://localhost:9000/energyDB")
             .then(res => {
                 return res.json();
             }).then(json => {
                 this.setState({json: Array.from(json)});
+                console.log(Array.from(json));
             }).catch(err => err);
     }
 
@@ -177,8 +178,8 @@ class DonutChart extends React.Component {
                 
                 />
             </div>
-            <div  style={{marginTop: -290, fontSize: 30}}>201{this.state.year}</div>
-            <div style={{marginTop: 290}}></div>
+            <div  style={{marginTop: "-22%", fontSize: 33}}>201{this.state.year}</div>
+            <div style={{marginTop: "22%"}}></div>
             </>
         )
     }

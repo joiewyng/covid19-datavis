@@ -9,8 +9,8 @@ const fs = require('fs');
 // Connection URL
 const connectionUrl = 'mongodb://127.0.0.1:27017';
 
-dbName = 'covid19';
-collectionName = 'countrydata';
+let dbName = 'covid19';
+let collectionName = 'countrydata';
 
 // issue from before (expected number...): was reading from downloaded data inside the 'countrydata.json' file
 router.get("/", function(req, res){

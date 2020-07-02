@@ -96,14 +96,14 @@ class DonutChart extends React.Component {
         super(props);
         this.state = {
             year: 9,
-            sum: 0
+            sum: 720435
         }
         this.handleChange = this.handleChange.bind(this);
     }
     calculateSum() {
         let obj = this.props.data[this.state.year];
         let array = Object.entries(obj);
-        let dataArray = array.filter((_, i) => ![0, 10, 11, 12].includes(i));
+        let dataArray = array.filter((_, i) => ![0, 10, 11, 12, 13].includes(i));
         let sum = 0;
         for (let i = 0; i < dataArray.length; i++){
             let value = dataArray[i][1];
@@ -111,15 +111,14 @@ class DonutChart extends React.Component {
             sum += parsedVal;
         }
         this.setState({sum: sum});
+        console.log("calculating sum")
     }
 
     configData () {
         let obj = this.props.data[this.state.year];
         let array = Object.entries(obj);
-        console.log(array);
         // tuple array with each entry containing the key and value
-        let dataArray = array.filter((_, i) => ![0, 10, 11, 12].includes(i));
-        console.log(dataArray);
+        let dataArray = array.filter((_, i) => ![0, 10, 11, 12, 13].includes(i));
         let pieData = [];
         if (this.state.sum !== 0){
             pieData = dataArray.map(obj => 
@@ -133,12 +132,14 @@ class DonutChart extends React.Component {
         return pieData;
     }
 
-    handleChange(event){
-        this.setState({year: event.target.value})
+    async handleChange(event){
+        await this.setState({year: event.target.value})
+        this.calculateSum();
+
+        console.log('sum in handle change: '+this.state.sum);
     }
 
     componentDidMount(){
-        this.calculateSum();
         this.configData();
     }
 
@@ -227,7 +228,6 @@ class HorizBarChart extends React.Component {
                 }
             )
         }
-        console.log(data);
         return data;
     }
 

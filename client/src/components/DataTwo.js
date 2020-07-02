@@ -88,7 +88,6 @@ class CustomLabel extends React.Component {
         );
     }
 }
-
 CustomLabel.defaultEvents = VictoryTooltip.defaultEvents;
 
 class DonutChart extends React.Component {
@@ -103,7 +102,7 @@ class DonutChart extends React.Component {
     calculateSum() {
         let obj = this.props.data[this.state.year];
         let array = Object.entries(obj);
-        let dataArray = array.filter((_, i) => ![0, 10, 11, 12, 13].includes(i));
+        let dataArray = array.filter((_, i) => !(i===0));
         let sum = 0;
         for (let i = 0; i < dataArray.length; i++){
             let value = dataArray[i][1];
@@ -118,7 +117,7 @@ class DonutChart extends React.Component {
         let obj = this.props.data[this.state.year];
         let array = Object.entries(obj);
         // tuple array with each entry containing the key and value
-        let dataArray = array.filter((_, i) => ![0, 10, 11, 12, 13].includes(i));
+        let dataArray = array.filter((_, i) => !(i===0));
         let pieData = [];
         if (this.state.sum !== 0){
             pieData = dataArray.map(obj => 
@@ -129,7 +128,6 @@ class DonutChart extends React.Component {
                 }
                 ));
         }
-        console.log("testing");
         return pieData;
     }
 

@@ -129,6 +129,7 @@ class DonutChart extends React.Component {
                 }
                 ));
         }
+        console.log("testing");
         return pieData;
     }
 

@@ -30,11 +30,19 @@ router.get("/", function(req, res){
     });  
 })
 
+router.get("/donut/filelist", function(req, res){
+    let files = fs.readdirSync('./data/usersaved/donutdata/'); 
+    console.log(files);
+    res.send(files);
+})
+
 router.post("/donut", function(req, res){
     queryObject = url.parse(req.url,true).query;
     MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client){
         db = client.db(dbName);
         collection = db.collection(collectionName);
+        let files = fs.readdirSync('./data/usersaved/donutdata/'); 
+        let file = queryObject.file;
         if (queryObject.update){
             let data = req.body.data;
             console.log(data);
@@ -61,10 +69,39 @@ router.post("/donut", function(req, res){
                     })   
                 }
             }); 
+        } else if (queryObject.restore && files.includes(file)){
+            console.log(file);
+            fs.readFile("./data/usersaved/donutdata/"+file, function(err, data) { 
+                if (err) {
+                    console.log(err);
+                } else {
+                    docs = JSON.parse(data); 
+                    collection.deleteMany({}, function(){
+                        collection.insertMany(docs, function(err,r){
+                            if (err){
+                                console.log("Issue inserting into DB: " + err);
+                            }
+                        })
+                    })   
+                }
+            });    
         }
     }).then(function(){
         updatedDocs = collection.find().toArray();
         return updatedDocs;
+    }).then(function(docs) {
+        if (queryObject.save){
+            let fileName = './data/usersaved/donutdata/'+ Date.now()+'.json';
+            let json = JSON.stringify(docs);
+            fs.writeFile(fileName, json, 'utf8', function callback(err, res){
+                if (err){
+                    console.log(err);
+                } else {
+                console.log('Saved data in ' + fileName); 
+                }
+            });
+            return docs;
+        }
     }).then(function(docs){
         res.send(docs);
     }).catch(function(err){

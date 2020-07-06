@@ -47,21 +47,14 @@ export default class WorldChart extends React.Component {
         newTotalConfirmed: '',
         selectedBubbleMetric: 'amount',
     };
-        // this.handleChange = this.handleChange.bind(this);
+        this.handleChange = this.handleChange.bind(this);
         this.handleSave = this.handleSave.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
         this.handleReset = this.handleReset.bind(this);
         this.handleRestore = this.handleRestore.bind(this);
         this.bubbleChartData = this.bubbleChartData.bind(this);
-        this.handleDeathsChange = this.handleDeathsChange.bind(this);
-        this.handleRecoveredChange = this.handleRecoveredChange.bind(this);
-        this.handleConfirmedChange = this.handleConfirmedChange.bind(this);
         this.updateCountryData = this.updateCountryData.bind(this);
-        this.handleNewCountryName = this.handleNewCountryName.bind(this);
-        this.handleNewDeathsChange = this.handleNewDeathsChange.bind(this);
-        this.handleNewRecoveredChange = this.handleNewRecoveredChange.bind(this);
-        this.handleNewConfirmedChange = this.handleNewConfirmedChange.bind(this);
         this.addCountry = this.addCountry.bind(this);
     }
 
@@ -215,27 +208,10 @@ export default class WorldChart extends React.Component {
         })
     }
 
-    handleDeathsChange(event){
-        this.setState({totalDeaths: Number(event.target.value)});
-    }
-    handleRecoveredChange(event){
-        this.setState({totalRecovered:  Number(event.target.value)});
-    }
-    handleConfirmedChange(event){
-        this.setState({totalConfirmed:  Number(event.target.value)});
-    }
-    handleNewCountryName(event){
-        console.log(event.target.value);
-        this.setState({newCountryName: event.target.value});
-    }
-    handleNewDeathsChange(event){
-        this.setState({newTotalDeaths: Number(event.target.value)});
-    }
-    handleNewRecoveredChange(event){
-        this.setState({newTotalRecovered: Number(event.target.value)});
-    }
-    handleNewConfirmedChange(event){
-        this.setState({newTotalConfirmed: Number(event.target.value)});
+    handleChange = prop => (event) => {
+        prop === 'newCountryName' 
+        ? this.setState({newCountryName: event.target.value}) 
+        : this.setState({[prop]: Number(event.target.value)});
     }
 
     async updateCountryDataRequest() {
@@ -446,19 +422,19 @@ export default class WorldChart extends React.Component {
                                 <label style={{width: 70, float: 'left', margin: 10}}>
                                     Deaths:  
                                 </label>
-                                <input type="text" value={this.state.totalDeaths} onChange={this.handleDeathsChange} style={{margin: 10}}/>
+                                <input type="text" value={this.state.totalDeaths} onChange={this.handleChange('totalDeaths')} style={{margin: 10}}/>
                             </div>
                             <div>
                                 <label style={{width: 70, float: 'left', margin: 10}}>
                                     Recovered:
                                 </label>
-                                <input type="text" value={this.state.totalRecovered} onChange={this.handleRecoveredChange} style={{margin: 10}}/>
+                                <input type="text" value={this.state.totalRecovered} onChange={this.handleChange('totalRecovered')} style={{margin: 10}}/>
                             </div>
                             <div>
                                 <label style={{width: 70, float: 'left', margin: 10}}>
                                     Confirmed:
                                 </label>
-                                <input type="text" value={this.state.totalConfirmed} onChange={this.handleConfirmedChange} style={{margin: 10}}/>
+                                <input type="text" value={this.state.totalConfirmed} onChange={this.handleChange('totalConfirmed')} style={{margin: 10}}/>
                             </div>
                             
                             <input type="submit" value="Update" style={{margin: 10, float: 'right'}}/>
@@ -471,25 +447,25 @@ export default class WorldChart extends React.Component {
                                 <label style={{width: 70, float: 'left', margin: 10}}>
                                     Name:  
                                 </label>
-                                <input type="text" value={this.state.newCountryName} onChange={this.handleNewCountryName} style={{margin: 10}}/>
+                                <input type="text" value={this.state.newCountryName} onChange={this.handleChange('newCountryName')} style={{margin: 10}}/>
                             </div>
                             <div>
                                 <label style={{width: 70, float: 'left', margin: 10}}>
                                     Deaths:  
                                 </label>
-                                <input type="text" value={this.state.newTotalDeaths} onChange={this.handleNewDeathsChange} style={{margin: 10}}/>
+                                <input type="text" value={this.state.newTotalDeaths} onChange={this.handleChange('newTotalDeaths')} style={{margin: 10}}/>
                             </div>
                             <div>
                                 <label style={{width: 70, float: 'left', margin: 10}}>
                                     Recovered:
                                 </label>
-                                <input type="text" value={this.state.newTotalRecovered} onChange={this.handleNewRecoveredChange} style={{margin: 10}}/>
+                                <input type="text" value={this.state.newTotalRecovered} onChange={this.handleChange('newTotalRecovered')} style={{margin: 10}}/>
                             </div>
                             <div>
                                 <label style={{width: 70, float: 'left', margin: 10}}>
                                     Confirmed:
                                 </label>
-                                <input type="text" value={this.state.newTotalConfirmed} onChange={this.handleNewConfirmedChange} style={{margin: 10}}/>
+                                <input type="text" value={this.state.newTotalConfirmed} onChange={this.handleChange('newTotalConfirmed')} style={{margin: 10}}/>
                             </div>
                             
                             <input type="submit" value="Add" style={{margin: 10, float: 'right'}}/>

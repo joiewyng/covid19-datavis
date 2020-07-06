@@ -19,7 +19,12 @@ export default class DataTwo extends React.Component {
         this.state = {
             loading: true,
             json: {},
+            donutYear: 9,
+            donutData: {}
         }
+        this.setDonutYear = this.setDonutYear.bind(this);
+        this.updateDonutData = this.updateDonutData.bind(this);
+        
     }
     async callDB() {
         await fetch("http://localhost:9000/energyDB")
@@ -38,6 +43,17 @@ export default class DataTwo extends React.Component {
         console.log(this.state.json[0]["Annual Totals"][9].Period);
     }
 
+    setDonutYear (year) {
+        this.setState({
+            donutYear: year,
+        })
+    }
+
+    updateDonutData(data){
+        this.setState({json:data});
+    }
+
+
     render(){
         if (this.state.loading || this.state.json.length === 0){
             return(<div>loading...</div>);
@@ -45,29 +61,121 @@ export default class DataTwo extends React.Component {
             return (
                 <div className="Data2">
                     <h1 style={{marginTop: 50}}>Energy in the USA</h1>
-                    <DonutChart data={this.state.json[0]["Annual Totals"]}/>
+                    <div style={{ display: "flex", flexWrap: "wrap"}}>
+                        <DonutChart 
+                            data={this.state.json[0]["Annual Totals"]} 
+                            setYear={this.setDonutYear} 
+                            year={this.state.donutYear}
+                        />
+                        <DonutDataUpdate
+                            data={this.state.json[0]["Annual Totals"]}
+                            year={this.state.donutYear}
+                            updateData={this.updateDonutData}
+                        />
+                    </div>
+                    
                     <HorizBarChart data={this.state.json[1]["Year 2018"]}/>
-                    <PieChart/>
+                    {/* <PieChart/> */}
                 </div>
             );
         }
     }
 }
 
-let sampleDataPolar = [
-    { x: 100, y: 3},
-];
+class DonutDataUpdate extends React.Component {
+    constructor(props){
+        super(props);
+        this.state = {
+            year: 9,
+            data: JSON.stringify(this.props.data[9]),
+            Wind: this.props.data[this.props.year]['Wind'],
+            
+        }
+        this.handleChange = this.handleChange.bind(this);
+        this.updateDataRequest = this.updateDataRequest.bind(this);
+        this.updateData = this.updateData.bind(this);
+    }
 
-let sampleDataPolar2 = [
-    { x: 300, y: 10},
-    { x: 300, y: 5},
-];
+    async updateDataRequest() {
+        let url = "http://localhost:9000/energyDB/donut?update=true";
+        await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({
+                data: JSON.parse(this.state.data),
+                year: this.state.year
+            }),
+            headers: {"Content-Type": "application/json"}
+        }).then(function(response){
+            return response.json();
+        }).then(dataJson => {
+            console.log(Array.from(dataJson));
+            this.setState({json: Array.from(dataJson)});
+            console.log(JSON.stringify(this.state.json));
+            this.props.updateDonutData(dataJson);
+            return this.state.donutData;
+        }).catch(err => err);
+    }
 
-let sampleDataPolar3 = [
-    { x: 10, y: 4},
-];
+    async handleReset(event) {
+        let url = "http://localhost:9000/energyDB/donut?reset=true"
+         await fetch(url, {
+             method: 'POST'
+         }).then(function(response){
+             return response.json();
+         }).then(dataJson => {
+             this.setState({
+                 json: Array.from(dataJson),
+                 data: JSON.stringify(dataJson[0]["Annual Totals"][9])
+             });
+             console.log('reset:')
+             console.log(JSON.stringify(dataJson));
+             return this.state.json
+         }).catch(err => err);
+    }
+
+    async updateData(event){
+        // event.preventDefault();
+        await this.updateDataRequest();
+    }
+
+    handleChange = prop => async(event) => {
+        await this.setState({[prop]: event.target.value});
+        if (prop === 'year') this.setState({data: JSON.stringify(this.props.data[this.state.year])});
+    }
 
 
+
+    render(){
+        return (
+            <div style={{margin: '7%', marginLeft: '3%'}}>
+                <button onClick={this.handleReset} style={{margin: 10, padding: 5}}>Reset</button>
+                <form onSubmit={this.updateData}>
+                    <div>
+                        <select style={{margin: 15, padding:5}} value={this.state.year} onChange={this.handleChange('year')}>
+                        {[0,1,2,3,4,5,6,7,8,9].map((num, index) => {
+                            return <option value={num} key={index}>201{num}</option>
+                        })}
+                        </select>
+                    </div>
+                    <div>
+                        <label style={{width: 70, float: 'left', margin: 10, marginLeft: -5}}>
+                            Data:  
+                        </label>
+                        <textarea 
+                            type='text'
+                            value={this.state.data} 
+                            onChange={this.handleChange('data')} 
+                            style={{height: 200, width: '90%'}}
+                            
+                        />
+                    </div>
+                    <input type="submit" value="Update" style={{margin: 10, float: 'right'}}/>
+                </form>
+            </div>
+            
+        );
+    }
+}
 
 class CustomLabel extends React.Component {
     render() {
@@ -95,13 +203,14 @@ class DonutChart extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            year: 9,
+            // year: 9,
             sum: 720435
         }
         this.handleChange = this.handleChange.bind(this);
     }
     calculateSum() {
-        let obj = this.props.data[this.state.year];
+        // let obj = this.props.data[this.state.year];
+        let obj = this.props.data[this.props.year];
         let array = Object.entries(obj);
         let dataArray = array.filter((_, i) => !(i===0));
         let sum = 0;
@@ -115,7 +224,8 @@ class DonutChart extends React.Component {
     }
 
     configData () {
-        let obj = this.props.data[this.state.year];
+        // let obj = this.props.data[this.state.year];
+        let obj = this.props.data[this.props.year];
         let array = Object.entries(obj);
         // tuple array with each entry containing the key and value
         let dataArray = array.filter((_, i) => !(i===0));
@@ -133,7 +243,8 @@ class DonutChart extends React.Component {
     }
 
     async handleChange(event){
-        await this.setState({year: event.target.value})
+        await this.props.setYear(event.target.value);
+        // await this.setState({year: event.target.value})
         this.calculateSum();
 
         console.log('sum in handle change: '+this.state.sum);
@@ -146,34 +257,37 @@ class DonutChart extends React.Component {
     render() {
         return (
             <>
-            <div style={{marginBottom: -20}}>
-                <strong style={{lineHeight: 3, fontSize: 20}}>Net Generation from Renewable Sources</strong>
-                <div>MWh = Megawatthours</div>
-                <select style={{margin: 15, padding:5}}value={this.state.year} onChange={this.handleChange}>
-                    {[0,1,2,3,4,5,6,7,8,9].map((num, index) => {
-                        return <option value={num} key={index}>201{num}</option>
-                    })}
-             </select>
+            <div style={{minWidth: '50%', padding: '5%'}}>
+                <div style={{marginBottom: -20}}>
+                    <strong style={{lineHeight: 3, fontSize: 20}}>Net Generation from Renewable Sources</strong>
+                    <div>MWh = Megawatthours</div>
+                    <select style={{margin: 15, padding:5}} value={this.props.year} onChange={this.handleChange}>
+                        {[0,1,2,3,4,5,6,7,8,9].map((num, index) => {
+                            return <option value={num} key={index}>201{num}</option>
+                        })}
+                    </select>
+                </div>
+                
+                <div style={{width: '80%', marginLeft: '10%'}}>
+                    <VictoryPie
+                        animate={{
+                            duration: 1000
+                        }}
+                        colorScale={["#8DC3A7", "#6BAF92", "#4E9C81", "#358873", "#207567" ]}
+                        // colorScale={['#70c066', '#369946', '#d1e7c5',"#6BAF92", "#358873", ]}
+                        outerRadius={250}
+                        innerRadius={100}
+                        labelRadius={160}
+                        labels={({ datum }) => `${datum.percent}% \n -------------- \n${datum.x} \n -------------- \n${datum.y}K MWh `}
+                        style={{ labels: { fill: "black", fontSize: 10} }}
+                        labelComponent={<CustomLabel />}
+                        data={this.configData()}
+                    />
+                </div>
+                <div  style={{marginTop: "-45%", fontSize: 33}}>201{this.props.year}</div>
+                <div style={{marginTop: "45%"}}></div> 
             </div>
             
-            <div style={{marginLeft: "30%", marginRight: "30%"}}>
-                <VictoryPie
-                    animate={{
-                        duration: 1000
-                    }}
-                    colorScale={["#8DC3A7", "#6BAF92", "#4E9C81", "#358873", "#207567" ]}
-                    outerRadius={250}
-                    innerRadius={100}
-                    labelRadius={160}
-                    labels={({ datum }) => `${datum.percent}% \n -------------- \n${datum.x} \n -------------- \n${datum.y}K MWh `}
-                    style={{ labels: { fill: "black", fontSize: 10} }}
-                    labelComponent={<CustomLabel />}
-                    data={this.configData()}
-                
-                />
-            </div>
-            <div  style={{marginTop: "-22%", fontSize: 33}}>201{this.state.year}</div>
-            <div style={{marginTop: "22%"}}></div>
             </>
         )
     }
@@ -299,24 +413,22 @@ class HorizBarChart extends React.Component {
                 onChange={this.handleCheckboxInputChange} />
                 Split by energy type
             </label>
-            <div style={{marginLeft: "30%", marginRight: "30%"}}>
+            <div style={{marginLeft: "30%", marginRight: "30%", marginBottom: '10%'}}>
                 <VictoryChart
-                // theme={VictoryTheme.material}
-                domainPadding={{ y: 12, x: 12 }}
-                domain={{ y: [0.5, 100000] }}
-                containerComponent={
-                    <VictoryVoronoiContainer
-                      style={{padding: 10}}
-                      labels={
-                        this.state.splitByType ? (
-                            ({ datum }) => datum.y > 0 ? `${datum.category} \n ${datum.y} MWh` : null) 
-                        : (({ datum }) => datum.y > 0 ? `  ${datum.y} MWh` : null) 
-                      }
-                         
-                        
-                    />
-                }
-            >
+                    // theme={VictoryTheme.material}
+                    domainPadding={{ y: 12, x: 12 }}
+                    domain={{ y: [0.5, 100000] }}
+                    containerComponent={
+                        <VictoryVoronoiContainer
+                        style={{padding: 10}}
+                        labels={
+                            this.state.splitByType ? (
+                                ({ datum }) => datum.y > 0 ? `${datum.category} \n ${datum.y} MWh` : null) 
+                            : (({ datum }) => datum.y > 0 ? `  ${datum.y} MWh` : null) 
+                        } 
+                        />
+                    }
+                >
                     {
                         this.state.splitByType ? (
                             <VictoryLegend x={300} y={50}
@@ -373,75 +485,89 @@ class HorizBarChart extends React.Component {
     }
 }
 
-class PieChart extends React.Component {
-    constructor(props){
-        super(props);
-    }
-    render(){
-        return (
-            <>
-            <div style={{marginLeft: "30%", marginRight: "30%", marginTop: "5%"}}>
-                <VictoryPie
-                // style={{ parent: { minWidth: "50%" }}}
-                colorScale={["tomato", "orange", "gold", "cyan", "navy", "white" ]}
-                data={[
-                    { x: "Cats", y: 35 },
-                    { x: "Dogs", y: 40 },
-                    { x: "Birds", y: 55 },
-                    { x: "Frogs", y: 55 },
-                    { x: "Mice", y: 55 },
-                    { x: "Snakes", y: 10 }
-                ]}
-                // data={this.configData()}
-                />
-            </div>
+// let sampleDataPolar = [
+//     { x: 100, y: 3},
+// ];
+
+// let sampleDataPolar2 = [
+//     { x: 300, y: 10},
+//     { x: 300, y: 5},
+// ];
+
+// let sampleDataPolar3 = [
+//     { x: 10, y: 4},
+// ];
+
+
+// class PieChart extends React.Component {
+//     constructor(props){
+//         super(props);
+//     }
+//     render(){
+//         return (
+//             <>
+//             <div style={{marginLeft: "30%", marginRight: "30%", marginTop: "5%"}}>
+//                 <VictoryPie
+//                 // style={{ parent: { minWidth: "50%" }}}
+//                 colorScale={["tomato", "orange", "gold", "cyan", "navy", "white" ]}
+//                 data={[
+//                     { x: "Cats", y: 35 },
+//                     { x: "Dogs", y: 40 },
+//                     { x: "Birds", y: 55 },
+//                     { x: "Frogs", y: 55 },
+//                     { x: "Mice", y: 55 },
+//                     { x: "Snakes", y: 10 }
+//                 ]}
+//                 // data={this.configData()}
+//                 />
+//             </div>
             
             
-            <div style={{marginLeft: "30%", marginRight: "30%"}}>
-            <VictoryBar polar
+//             <div style={{marginLeft: "30%", marginRight: "30%"}}>
+//             <VictoryBar polar
                 
-                data={[
-                    { x: 100, y: 3 },
-                    { x: 6, y: 5 },
-                    { x: 50, y: 2 },
+//                 data={[
+//                     { x: 100, y: 3 },
+//                     { x: 6, y: 5 },
+//                     { x: 50, y: 2 },
               
-                ]}
-                width={400} height={400}
-                domain={{ x: [0, 360], y: [0, 5] }}
-                style={{ data: { fill: "#c43a31", stroke: "black", strokeWidth: 2 } }}
-            />
-            </div>
+//                 ]}
+//                 width={400} height={400}
+//                 domain={{ x: [0, 360], y: [0, 5] }}
+//                 style={{ data: { fill: "#c43a31", stroke: "black", strokeWidth: 2 } }}
+//             />
+//             </div>
                 
-            <div style={{marginLeft: "30%", marginRight: "30%"}}>
-                <VictoryChart polar
-                    maxDomain={{ x: 360 }}
-                    height={250} width={250}
-                    padding={30}
-                >
-                <VictoryPolarAxis dependentAxis
-                    style={{
-                    axis: {stroke: "none"},
-                    tickLabels: { fill: "none"},
-                    grid: { stroke: "grey", strokeDasharray: "4, 8" }
-                    }}
-                />
-                <VictoryPolarAxis
-                    tickValues={[0, 45, 90, 135, 180, 225, 270, 315]}
-                />
-                <VictoryStack
-                    colorScale={["#ad1b11", "#c43a31", "#dc7a6b", "pink", "green", "blue"]}
-                    style={{ data: { width: 50} }}
-                >
-                    <VictoryBar data={sampleDataPolar}/>
-                    <VictoryBar data={sampleDataPolar2}/>
-                    <VictoryBar data={sampleDataPolar3}/>
-                </VictoryStack>
-                </VictoryChart>
-            </div>
+//             <div style={{marginLeft: "30%", marginRight: "30%"}}>
+//                 <VictoryChart polar
+//                     maxDomain={{ x: 360 }}
+//                     height={250} width={250}
+//                     padding={30}
+//                 >
+//                 <VictoryPolarAxis dependentAxis
+//                     style={{
+//                     axis: {stroke: "none"},
+//                     tickLabels: { fill: "none"},
+//                     grid: { stroke: "grey", strokeDasharray: "4, 8" }
+//                     }}
+//                 />
+//                 <VictoryPolarAxis
+//                     tickValues={[0, 45, 90, 135, 180, 225, 270, 315]}
+//                 />
+//                 <VictoryStack
+//                     colorScale={["#ad1b11", "#c43a31", "#dc7a6b", "pink", "green", "blue"]}
+//                     style={{ data: { width: 50} }}
+//                 >
+//                     <VictoryBar data={sampleDataPolar}/>
+//                     <VictoryBar data={sampleDataPolar2}/>
+//                     <VictoryBar data={sampleDataPolar3}/>
+//                 </VictoryStack>
+//                 </VictoryChart>
+//             </div>
            
             
 
-            </>
-        );
-    }
-}
+//             </>
+//         );
+//     }
+// }

@@ -14,7 +14,7 @@ import {
     VictoryAxis,
     VictoryLine,
    } from 'victory';
-export default class DataTwo extends React.Component {
+export default class DataThree extends React.Component {
 
     constructor(props) {
         super(props);
@@ -64,16 +64,16 @@ export default class DataTwo extends React.Component {
                 <div className="Data2">
                     <h1 style={{marginTop: 50}}>Energy in the USA</h1>
                     <div style={{ display: "flex", flexWrap: "wrap"}}>
-                        <DonutChart 
-                            data={this.state.json[0]["Annual Totals"]} 
-                            setYear={this.setDonutYear} 
-                            year={this.state.donutYear}
-                        />
-                        <DonutDataUpdate
-                            data={this.state.json[0]["Annual Totals"]}
-                            year={this.state.donutYear}
-                            updateData={this.updateDonutData}
-                        />
+                        <div style={{ float: 'right'}}>
+                            <DonutChart 
+                                data={this.state.json[0]["Annual Totals"]} 
+                                setYear={this.setDonutYear} 
+                                year={this.state.donutYear}
+                            />
+                        </div>
+                        <div style={{ float: 'right'}}>
+                            <MoreData year={this.state.donutYear}/>
+                        </div>
                     </div>
                     
                     <HorizBarChart data={this.state.json[1]["Year 2018"]}/>
@@ -81,174 +81,6 @@ export default class DataTwo extends React.Component {
                 </div>
             );
         }
-    }
-}
-
-class DonutDataUpdate extends React.Component {
-    constructor(props){
-        super(props);
-        this.state = {
-            year: 9,
-            data: JSON.stringify(this.props.data[9]),
-            Wind: this.props.data[this.props.year]['Wind'],
-            selectedFile: '',
-            fileList: [{value: '', display: '-- Select a dataset --'}],
-            
-        }
-        this.handleChange = this.handleChange.bind(this);
-        this.updateDataRequest = this.updateDataRequest.bind(this);
-        this.updateData = this.updateData.bind(this);
-        this.handleRestore = this.handleRestore.bind(this);
-    }
-
-    async updateDataRequest() {
-        let url = "http://localhost:9000/energyDB/donut?update=true";
-        await fetch(url, {
-            method: 'POST',
-            body: JSON.stringify({
-                data: JSON.parse(this.state.data),
-                year: this.state.year
-            }),
-            headers: {"Content-Type": "application/json"}
-        }).then(function(response){
-            return response.json();
-        }).then(dataJson => {
-            console.log(Array.from(dataJson));
-            this.setState({json: Array.from(dataJson)});
-            console.log(JSON.stringify(this.state.json));
-            this.props.updateDonutData(dataJson);
-            return this.state.donutData;
-        }).catch(err => err);
-    }
-
-    async handleReset(event) {
-        let url = "http://localhost:9000/energyDB/donut?reset=true"
-         await fetch(url, {
-             method: 'POST'
-         }).then(function(response){
-             return response.json();
-         }).then(dataJson => {
-             this.setState({
-                 json: Array.from(dataJson),
-                 data: JSON.stringify(dataJson[0]["Annual Totals"][9])
-             });
-             console.log('reset:')
-             console.log(JSON.stringify(dataJson));
-             return this.state.json
-         }).catch(err => err);
-    }
-
-    async handleSave(event) {
-        // event.preventDefault();
-        let url = "http://localhost:9000/energyDB/donut?save=true"
-        await fetch(url, {
-            method: 'POST'
-        }).then(function(response){
-            return response.json();
-        }).then(dataJson => {
-            console.log('saved');
-            return dataJson
-        }).catch(err => err);
-    }
-
-    async updateData(event){
-        // event.preventDefault();
-        await this.updateDataRequest();
-    }
-
-    handleChange = prop => async(event) => {
-        await this.setState({[prop]: event.target.value});
-        if (prop === 'year') this.setState({data: JSON.stringify(this.props.data[this.state.year])});
-    }
-
-    async loadFileNames() {
-        let url = "http://localhost:9000/energyDB/donut/filelist";
-        await fetch(url)
-        .then((response) => {
-            return response.json();
-        }).then(data => {
-            console.log(data);
-            let fileList = data.map(file => {
-              return {value: file, display: file}
-            });
-            this.setState({
-              fileList: [{value: '', display: '-- Select a dataset --'}].concat(fileList)
-            });
-        }).catch(error => {
-            console.log(error);
-        });
-    }
-
-    async handleRestore(event) {
-
-        let url = "http://localhost:9000/energyDB/donut?restore=true&file=" + this.state.selectedFile;
-        await fetch(url, {
-            method: 'POST'
-        }).then(function(response){
-            return response.json();
-        }).then(dataJson => {
-            console.log('does not reach this point...');
-            this.setState({
-                json: Array.from(dataJson),
-                data: JSON.stringify(dataJson[0]["Annual Totals"][9]),
-            });
-            console.log(JSON.stringify(dataJson));
-            return this.state.json
-        }).catch(err => err);
-    }
-
-    async componentDidMount(){
-        await this.loadFileNames();
-    }
-
-
-    render(){
-        return (
-            <div style={{margin: '7%', marginLeft: '3%'}}>
-                <button onClick={this.handleReset} style={{margin: 10, padding: 5}}>Reset</button>
-                <button onClick={this.handleSave} style={{margin: 10, padding: 5}}>Save Dataset</button>
-                <div>
-                    <select 
-                        style={{padding:3, margin: 20}}
-                        value={this.state.selectedDataFile}
-                        onChange={async(e) => {
-                            await this.setState({selectedFile: e.target.value});
-                            if (this.state.selectedFile !== ''){
-                                this.loadFileNames();
-                            }
-                        }}
-                    >
-                        {this.state.fileList.map((file) => 
-                        <option key={file.value} value={file.value}>{file.display}</option>
-                        )}
-                    </select>
-                    <button onClick={this.handleRestore} style={{margin: 8, padding: 5}}>Restore</button>
-                </div>
-                <form onSubmit={this.updateData}>
-                    <div>
-                        <select style={{margin: 15, padding:5}} value={this.state.year} onChange={this.handleChange('year')}>
-                        {[0,1,2,3,4,5,6,7,8,9].map((num, index) => {
-                            return <option value={num} key={index}>201{num}</option>
-                        })}
-                        </select>
-                    </div>
-                    <div>
-                        <label style={{width: 70, float: 'left', margin: 10, marginLeft: -5}}>
-                            Data:  
-                        </label>
-                        <textarea 
-                            type='text'
-                            value={this.state.data} 
-                            onChange={this.handleChange('data')} 
-                            style={{height: 200, width: '90%'}}
-                            
-                        />
-                    </div>
-                    <input type="submit" value="Update" style={{margin: 10, float: 'right'}}/>
-                </form>
-            </div>
-            
-        );
     }
 }
 
@@ -278,9 +110,8 @@ class DonutChart extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            // year: 9,
-            sum: 720435,
-            showMore: false,
+            sum: 0,
+            // showMore: false,
         }
         this.handleChange = this.handleChange.bind(this);
     }
@@ -332,23 +163,20 @@ class DonutChart extends React.Component {
     }
 
     render() {
-        if (this.state.showMore){
-            return(<MoreData/>);
-        }
         return (
             <>
-            <div style={{minWidth: '50%', padding: '5%'}}>
-                <div style={{marginBottom: -20}}>
+            <div style={{padding: '5%'}}>
+                <select style={{margin: 15, marginLeft: 130, padding:10, fontSize:18}} value={this.props.year} onChange={this.handleChange}>
+                    {[0,1,2,3,4,5,6,7,8,9].map((num, index) => {
+                        return <option value={num} key={index}>201{num}</option>
+                    })}
+                </select>
+                <div style={{marginBottom: -30, marginLeft: 130}}>
                     <strong style={{lineHeight: 3, fontSize: 20}}>Net Generation from Renewable Sources</strong>
                     <div>MWh = Megawatthours</div>
-                    <select style={{margin: 15, padding:5}} value={this.props.year} onChange={this.handleChange}>
-                        {[0,1,2,3,4,5,6,7,8,9].map((num, index) => {
-                            return <option value={num} key={index}>201{num}</option>
-                        })}
-                    </select>
                 </div>
     
-                <div style={{width: '80%', marginLeft: '10%'}}>
+                <div style={{width: 650, marginLeft: '5%'}}>
                     <VictoryPie
                         animate={{
                             duration: 1000
@@ -362,18 +190,10 @@ class DonutChart extends React.Component {
                         style={{ labels: { fill: "black", fontSize: 10} }}
                         labelComponent={<CustomLabel />}
                         data={this.configData()}
-                        events={[{
-                            target: 'data',
-                            eventHandlers: {
-                                onClick: (event, data) => {
-                                    console.log('click');
-                                    this.setState({showMore: true});
-                                },
-                            },
-                        }]}
                     />
+                    <div  style={{marginTop: "-55%", fontSize: 33}}>201{this.props.year}</div>
                 </div>
-                <div  style={{marginTop: "-45%", fontSize: 33}}>201{this.props.year}</div>
+                
                 <div style={{marginTop: "45%"}}></div> 
             </div>
             
@@ -387,21 +207,24 @@ const petroleumLiquidsData = [23337, 16086, 13403, 13820, 18276, 17372, 13008, 1
 const hevSales = [274.648, 266.501, 434.648, 495.535, 452.172, 384.400, 346.949, 362.868, 343.219, 400.746];
 const pevSales = [null, 17.763, 53.171, 97.102, 118.882, 114.023, 159.616, 195.581, 361.315, 326.644];
 const co2Emissions = [5585, 5446, 5229, 5356, 5413, 5263, 5170, 5130, 5269, null]
+
 class MoreData extends React.Component {
     
     constructor(props){
         super(props);
     }
 
-    formatData(x, y, category){
+    formatData(x, y, category, highlight, fill){
         let data = [];
         for (let i = 0; i < x.length; i++){
             data.push({
                 x: x[i],
                 y: y[i],
-                category: category
+                category: category,
+                fill: String(this.props.year) === x[i].substring(2,3) ? highlight : fill
             })
         }
+        console.log(this.props.year);
         console.log(data);
         return data;
     }
@@ -409,33 +232,40 @@ class MoreData extends React.Component {
     render(){
         return ( <>
             <div style={{display: "flex", flexWrap: "wrap", width: '100%', padding: '10%'}}>
-                <div style={{minWidth: '49%'}}>
+                <div style={{minWidth: '20%'}}>
                     <div><strong> Net Generation of Petroleum Liquids</strong></div>
                     <div> in Thousand Megawatthours</div>
-                    <VictoryChart height={400} width={400}
-                    domainPadding={{ x: 50, y: [0, 20] }}
-                    containerComponent={
-                        <VictoryVoronoiContainer
-                        style={{padding: 10}}
-                        labels={({ datum }) => 
-                            datum.y > 0 ? `  ${datum.y} MWh` : null
-                        } 
-                        />
-                    }
+                    <VictoryChart height={300} width={400}
+                        animate={{
+                            duration: 500
+                        }}
+                        domainPadding={{ x: 50, y: [0, 20] }}
+                        containerComponent={
+                            <VictoryVoronoiContainer
+                            style={{padding: 10}}
+                            labels={({ datum }) => 
+                                datum.y > 0 ? `  ${datum.y} MWh` : null
+                            } 
+                            />
+                        }
                     >
-                    <VictoryBar
-                        barWidth={20}
-                        padding={{ left: 20, right: 60 }}
-                        style={{data:{fill: 'tomato'}}}
-                        data={this.formatData(years, petroleumLiquidsData)}
-                    />
+                        <VictoryBar
+                            barWidth={20}
+                            padding={{ left: 20, right: 60 }}
+                            style={{data:{
+                                fill: ({ datum }) => datum.fill,
+                            }}}
+                            data={this.formatData(years, petroleumLiquidsData, null, 'tomato', 'gray')}
+                        />
                     </VictoryChart>
                 </div>
-                <div style={{minWidth: '49%'}}>
+                <div style={{minWidth: '20%'}}>
                     <div><strong> Hybrid Electric Vehicle and Plug-In Electric Vehicle Sales</strong></div>
                     <div>in Thousands</div>
-                    <VictoryChart height={400} width={400}
-                    
+                    <VictoryChart height={300} width={400}
+                        animate={{
+                            duration: 500
+                        }}
                         domainPadding={{ x: 50, y: [0, 20] }}
                         containerComponent={
                             <VictoryVoronoiContainer
@@ -448,18 +278,21 @@ class MoreData extends React.Component {
                     >
                     <VictoryStack offset={20} style={{ data: { width: 50 } }}>
                         <VictoryBar
-
                             barWidth={20}
                             padding={{ left: 20, right: 60 }}
-                            style={{data:{fill: '#8DC3A7'}}}
-                            data={this.formatData(years, hevSales, 'HEV')}
+                            style={{data:{
+                                fill: ({ datum }) => datum.fill,
+                            }}}
+                            data={this.formatData(years, hevSales, 'HEV', '#8DC3A7', '#909090')}
                         />
                         <VictoryBar
 
                         barWidth={20}
                         padding={{ left: 20, right: 60 }}
-                        style={{data:{fill: '#4E9C81'}}}
-                        data={this.formatData(years, pevSales, 'PEV')}
+                        style={{data:{
+                            fill: ({ datum }) => datum.fill,
+                        }}}
+                        data={this.formatData(years, pevSales, 'PEV', '#4E9C81', '#525252')}
                         />
                         </VictoryStack>
                     
@@ -467,31 +300,31 @@ class MoreData extends React.Component {
                 </div>
                 
             </div>
-            <div style={{width: '60%', marginLeft: '20%'}}>
-            <div><strong>Energy-related carbon dioxide emissions</strong></div>
-            <div>in million metric tons of CO2</div>
-            <VictoryChart
-                theme={VictoryTheme.material}
-                domainPadding={{ x: 0, y: [-80, 20] }}
-                height={200} width={300}
-                containerComponent={
-                    <VictoryVoronoiContainer
-                    style={{padding: 10}}
-                    labels={({ datum }) => 
-                        datum.y > 0 ? `  ${datum.y} million metric tons` : null
-                    } 
+            {/* <div style={{width: '60%', marginLeft: '20%'}}>
+                <div><strong>Energy-related carbon dioxide emissions</strong></div>
+                <div>in million metric tons of CO2</div>
+                <VictoryChart
+                    theme={VictoryTheme.material}
+                    domainPadding={{ x: 0, y: [-80, 20] }}
+                    height={200} width={300}
+                    containerComponent={
+                        <VictoryVoronoiContainer
+                        style={{padding: 10}}
+                        labels={({ datum }) => 
+                            datum.y > 0 ? `  ${datum.y} million metric tons` : null
+                        } 
+                        />
+                    }
+                >
+                    <VictoryLine
+                    style={{
+                    data: { stroke: "#c43a31" },
+                    parent: { border: "1px solid #ccc"}
+                    }}
+                    data={this.formatData(years, co2Emissions)}
                     />
-                }
-            >
-                <VictoryLine
-                style={{
-                data: { stroke: "#c43a31" },
-                parent: { border: "1px solid #ccc"}
-                }}
-                data={this.formatData(years, co2Emissions)}
-                />
-            </VictoryChart>
-        </div>
+                </VictoryChart>
+            </div> */}
         </>
         );
     }

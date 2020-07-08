@@ -72,7 +72,10 @@ export default class DataThree extends React.Component {
                             />
                         </div>
                         <div style={{ float: 'right'}}>
-                            <MoreData year={this.state.donutYear}/>
+                            <MoreData 
+                                year={this.state.donutYear}
+                                setYear={this.setDonutYear} 
+                            />
                         </div>
                     </div>
                     
@@ -256,6 +259,14 @@ class MoreData extends React.Component {
                                 fill: ({ datum }) => datum.fill,
                             }}}
                             data={this.formatData(years, petroleumLiquidsData, null, 'tomato', 'gray')}
+                            events={[{
+                                target: 'data',
+                                eventHandlers: {
+                                    onClick: (event, data) => {
+                                        this.props.setYear(Number(data.datum.x.substring(2,3)))
+                                    },
+                                },
+                            }]}
                         />
                     </VictoryChart>
                 </div>
@@ -284,15 +295,30 @@ class MoreData extends React.Component {
                                 fill: ({ datum }) => datum.fill,
                             }}}
                             data={this.formatData(years, hevSales, 'HEV', '#8DC3A7', '#909090')}
+                            events={[{
+                                target: 'data',
+                                eventHandlers: {
+                                    onClick: (event, data) => {
+                                        this.props.setYear(Number(data.datum.x.substring(2,3)))
+                                    },
+                                },
+                            }]}
                         />
                         <VictoryBar
-
-                        barWidth={20}
-                        padding={{ left: 20, right: 60 }}
-                        style={{data:{
-                            fill: ({ datum }) => datum.fill,
-                        }}}
-                        data={this.formatData(years, pevSales, 'PEV', '#4E9C81', '#525252')}
+                            barWidth={20}
+                            padding={{ left: 20, right: 60 }}
+                            style={{data:{
+                                fill: ({ datum }) => datum.fill,
+                            }}}
+                            data={this.formatData(years, pevSales, 'PEV', '#4E9C81', '#525252')}
+                            events={[{
+                                target: 'data',
+                                eventHandlers: {
+                                    onClick: (event, data) => {
+                                        this.props.setYear(Number(data.datum.x.substring(2,3)))
+                                    },
+                                },
+                            }]}
                         />
                         </VictoryStack>
                     

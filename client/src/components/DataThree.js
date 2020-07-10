@@ -15,7 +15,8 @@ import {
     VictoryLine,
     VictoryZoomContainer,
     VictoryBrushContainer,
-    createContainer
+    createContainer,
+    VictoryArea
    } from 'victory';
 export default class DataThree extends React.Component {
 
@@ -75,18 +76,24 @@ export default class DataThree extends React.Component {
                             />
                         </div>
                         <div style={{ float: 'right'}}>
+                            <ChangeCalculator
+                                year={this.state.donutYear}
+                                setYear={this.setDonutYear} 
+                            />
                             <MoreData 
                                 year={this.state.donutYear}
                                 setYear={this.setDonutYear} 
                             />
                         </div>
                     </div>
-                    <div style={{ }}>
+                    {/* <div style={{ }}>
                             <TempChart 
                                 setYear={this.setDonutYear} 
                                 year={this.state.donutYear}
                             />
-                        </div>
+                    </div> */}
+                    
+                    
                     <HorizBarChart data={this.state.json[1]["Year 2018"]}/>
                     {/* <PieChart/> */}
                 </div>
@@ -218,6 +225,64 @@ const petroleumLiquidsData = [23337, 16086, 13403, 13820, 18276, 17372, 13008, 1
 const hevSales = [274.648, 266.501, 434.648, 495.535, 452.172, 384.400, 346.949, 362.868, 343.219, 400.746];
 const pevSales = [null, 17.763, 53.171, 97.102, 118.882, 114.023, 159.616, 195.581, 361.315, 326.644];
 const co2Emissions = [5585, 5446, 5229, 5356, 5413, 5263, 5170, 5130, 5269, null]
+
+class ChangeCalculator extends React.Component {
+    constructor(props){
+        super(props);
+        this.state = {
+            from: 2010,
+            to: this.props.year
+        }
+        this.handleChange = this.handleChange.bind(this);
+    }
+
+    handleChange = prop => (event) => {
+        this.setState({
+            [prop]: event.target.value,
+        });
+        if (prop === 'to'){
+            this.props.setYear(event.target.value) 
+        }
+    }
+
+    render(){
+        return(
+            <div> 
+                <div style={{marginTop: 40, marginLeft: -40}}>
+                    Percent Change: 
+                    <select style={{margin: 15, padding:7, fontSize:15}} value={this.state.from} onChange={this.handleChange('from')}>
+                        {[0,1,2,3,4,5,6,7,8,9].map((num, index) => {
+                            return <option value={num} key={index}>201{num}</option>
+                        })}
+                    </select>
+                    <text style={{fontSize: 25}}>&#8594;</text>
+                    <select style={{margin: 15, padding:7, fontSize:15}} value={this.state.to} onChange={this.handleChange('to')}>
+                        {[0,1,2,3,4,5,6,7,8,9].map((num, index) => {
+                            return <option value={num} key={index}>201{num}</option>
+                        })}
+                    </select>
+                </div>
+                
+                <div style={{display: 'float', flexWrap: 'wrap', marginLeft: 100, paddingLeft: 40, paddingRight: 100, marginTop: 50,}}>
+                <div style={{float: 'right', fontSize: 13, marginTop: -20, marginRight: 265}}>HEV and PEV Sales </div>
+                    <div style={{backgroundColor: '#f2f3f4', padding:30, width: '35%', float: 'right', marginRight: 30}}>
+                        <strong style={{color: 'black', fontSize: 30}}>
+                            {((((hevSales[this.state.to%10]+pevSales[this.state.to%10]) - (hevSales[this.state.from%10]+pevSales[this.state.from%10])))/(hevSales[this.state.from%10]+pevSales[this.state.from%10])*100).toFixed(2)} %
+                        </strong>
+                        <div style={{fontSize: 13, marginTop: 10}}>{(hevSales[this.state.from%10]+pevSales[this.state.from%10]).toFixed(2)}K sales &#8594; {(hevSales[this.state.to%10]+pevSales[this.state.to%10]).toFixed(2)}K sales</div>
+                    </div>
+                    <div style={{float: 'left', fontSize: 13, marginTop: -20}}>Petroleum Liquids Generation </div>
+                    <div style={{backgroundColor: '#f2f3f4', padding:30, width: '35%'}}>
+                        <strong style={{color: 'black', fontSize: 30}}>
+                            {((petroleumLiquidsData[this.state.to%10] - petroleumLiquidsData[this.state.from%10])/petroleumLiquidsData[this.state.from%10]*100).toFixed(2)} %
+                        </strong>
+                        <div style={{fontSize: 13, marginTop: 10}}>{petroleumLiquidsData[this.state.from%10]}K MWh &#8594; {petroleumLiquidsData[this.state.to%10]}K MWh</div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+}
 
 class MoreData extends React.Component {
     
@@ -2324,6 +2389,169 @@ const airTempData =
       "global": 0.575
     }
    ];
+const co2ConcentrationData = 
+[
+    {
+      "Year": 1979,
+      "CO₂ concentration (parts per million)": 336.84
+    },
+    {
+      "Year": 1980,
+      "CO₂ concentration (parts per million)": 338.75
+    },
+    {
+      "Year": 1981,
+      "CO₂ concentration (parts per million)": 340.11
+    },
+    {
+      "Year": 1982,
+      "CO₂ concentration (parts per million)": 341.45
+    },
+    {
+      "Year": 1983,
+      "CO₂ concentration (parts per million)": 343.05
+    },
+    {
+      "Year": 1984,
+      "CO₂ concentration (parts per million)": 344.65
+    },
+    {
+      "Year": 1985,
+      "CO₂ concentration (parts per million)": 346.12
+    },
+    {
+      "Year": 1986,
+      "CO₂ concentration (parts per million)": 347.42
+    },
+    {
+      "Year": 1987,
+      "CO₂ concentration (parts per million)": 349.19
+    },
+    {
+      "Year": 1988,
+      "CO₂ concentration (parts per million)": 351.57
+    },
+    {
+      "Year": 1989,
+      "CO₂ concentration (parts per million)": 353.12
+    },
+    {
+      "Year": 1990,
+      "CO₂ concentration (parts per million)": 354.39
+    },
+    {
+      "Year": 1991,
+      "CO₂ concentration (parts per million)": 355.61
+    },
+    {
+      "Year": 1992,
+      "CO₂ concentration (parts per million)": 356.45
+    },
+    {
+      "Year": 1993,
+      "CO₂ concentration (parts per million)": 357.1
+    },
+    {
+      "Year": 1994,
+      "CO₂ concentration (parts per million)": 358.83
+    },
+    {
+      "Year": 1995,
+      "CO₂ concentration (parts per million)": 360.82
+    },
+    {
+      "Year": 1996,
+      "CO₂ concentration (parts per million)": 362.61
+    },
+    {
+      "Year": 1997,
+      "CO₂ concentration (parts per million)": 363.73
+    },
+    {
+      "Year": 1998,
+      "CO₂ concentration (parts per million)": 366.7
+    },
+    {
+      "Year": 1999,
+      "CO₂ concentration (parts per million)": 368.38
+    },
+    {
+      "Year": 2000,
+      "CO₂ concentration (parts per million)": 369.55
+    },
+    {
+      "Year": 2001,
+      "CO₂ concentration (parts per million)": 371.14
+    },
+    {
+      "Year": 2002,
+      "CO₂ concentration (parts per million)": 373.28
+    },
+    {
+      "Year": 2003,
+      "CO₂ concentration (parts per million)": 375.8
+    },
+    {
+      "Year": 2004,
+      "CO₂ concentration (parts per million)": 377.52
+    },
+    {
+      "Year": 2005,
+      "CO₂ concentration (parts per million)": 379.8
+    },
+    {
+      "Year": 2006,
+      "CO₂ concentration (parts per million)": 381.9
+    },
+    {
+      "Year": 2007,
+      "CO₂ concentration (parts per million)": 383.79
+    },
+    {
+      "Year": 2008,
+      "CO₂ concentration (parts per million)": 385.6
+    },
+    {
+      "Year": 2009,
+      "CO₂ concentration (parts per million)": 387.43
+    },
+    {
+      "Year": 2010,
+      "CO₂ concentration (parts per million)": 389.9
+    },
+    {
+      "Year": 2011,
+      "CO₂ concentration (parts per million)": 391.65
+    },
+    {
+      "Year": 2012,
+      "CO₂ concentration (parts per million)": 393.85
+    },
+    {
+      "Year": 2013,
+      "CO₂ concentration (parts per million)": 396.52
+    },
+    {
+      "Year": 2014,
+      "CO₂ concentration (parts per million)": 398.65
+    },
+    {
+      "Year": 2015,
+      "CO₂ concentration (parts per million)": 400.83
+    },
+    {
+      "Year": 2016,
+      "CO₂ concentration (parts per million)": 404.24
+    },
+    {
+      "Year": 2017,
+      "CO₂ concentration (parts per million)": 406.55
+    },
+    {
+      "Year": 2018,
+      "CO₂ concentration (parts per million)": 408.52
+    }
+   ];
 const VictoryZoomVoronoiContainer = createContainer("zoom", "voronoi");
 
 class TempChart extends React.Component {
@@ -2353,6 +2581,21 @@ class TempChart extends React.Component {
         return data;
     }
 
+    formatCo2Data(){
+        let data = 
+        co2ConcentrationData.map(obj => ({
+            date: new Date(obj.Year, 6),
+            concentration: obj["CO₂ concentration (parts per million)"]/1000
+        }));
+        // for (let i = 1; i < co2ConcentrationData.length; i++){
+        //     data.push({
+        //         year: new Date(co2ConcentrationData[i].Year,6),
+        //         concentration: co2ConcentrationData[i]["CO₂ concentration (parts per million)"] - co2ConcentrationData[i-1]["CO₂ concentration (parts per million)"]
+        //     })
+        // }
+        // console.log(data);
+        return data;
+    }
         
     render(){
 
@@ -2367,19 +2610,42 @@ class TempChart extends React.Component {
                             zoomDomain={this.props.year === this.state.year ? this.state.zoomDomain : { x: [new Date(Number('201'+this.props.year)-1, 8), new Date(Number('201'+this.props.year)+1, 3)] }}
                             // zoomDomain={{ x: [new Date(Number('201'+this.props.year), 1), new Date(Number('201'+this.props.year), 12)] }}
                             onZoomDomainChange={this.handleZoom.bind(this)}
-                            labels={({ datum }) => `${months[datum.date.getMonth()]} ${datum.date.getFullYear()}: ${datum.anomaly} °C`}
+                            labels={({ datum }) => (!datum.anomaly ? `${datum.date.getFullYear()}: ${datum.concentration}K ppm` :(`${months[datum.date.getMonth()]} ${datum.date.getFullYear()}: ${datum.anomaly} °C`))}
                         />
                     }
                     >
                         <VictoryLabel text="Monthly Global Surface Air Temp. Anomalies (°C)" x={300} y={30} textAnchor="middle"/>
-                        <VictoryBar
-                        barWidth={8}
-                        style={{
-                            data: {fill: ({ datum }) => datum.fill}
-                        }}
-                        data={this.formatTempData()}
-                        x="date"
-                        y="anomaly"
+                        <VictoryLine
+                            barWidth={8}
+                            // style={{
+                            //     data: {fill: ({ datum }) => datum.fill}
+                            // }}
+                            style={{
+                                data: { stroke: "tomato" }
+                              }}
+                            data={this.formatTempData()}
+                            x="date"
+                            y="anomaly"
+                        />
+                        {/* <VictoryLine
+                            data={this.formatTempData()}
+                            x="date"
+                            y="anomaly"
+                            style={{
+                                data: { stroke: "red" }
+                            }}
+                        ></VictoryLine> */}
+                        <VictoryLine
+                            data={this.formatCo2Data()}
+                            x="date"
+                            y="concentration"
+                            stroke='black'
+                        >
+                        </VictoryLine>
+                        <VictoryLabel
+                            text=" • CO2 concentration in thousands ppm"
+                            y={50}
+                            x={175}
                         />
                     </VictoryChart>
                     <div style={{marginTop: -80}}>
@@ -2401,16 +2667,22 @@ class TempChart extends React.Component {
                             tickFormat={(x) => new Date(x).getFullYear()}
                             />
                             <VictoryBar
-                            style={{
-                                data: {fill: ({ datum }) => datum.fill}
-                            }}
-                            data={this.formatTempData()}
-                            x="date"
-                            y="anomaly"
+                                style={{
+                                    data: {fill: ({ datum }) => datum.fill}
+                                }}
+                                data={this.formatTempData()}
+                                x="date"
+                                y="anomaly"
                             />
+                            <VictoryLine
+                                data={this.formatCo2Data()}
+                                x="date"
+                                y="concentration"
+                            >   
+                            </VictoryLine>
                         </VictoryChart>
                     </div>
-                    
+
                 </div>
                 {/* <div style={{minWidth: '60%'}}>
                     <VictoryChart height={300} width={1300}

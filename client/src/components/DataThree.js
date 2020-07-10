@@ -245,6 +245,22 @@ class ChangeCalculator extends React.Component {
         }
     }
 
+    sumData (data1, data2) {
+        let data = [];
+        for (let i = 0; i < data1.length; i++){
+            data.push(data1[i]+data2[i]);
+        }
+        return data;
+    }
+
+    fontColor(greenPos, data){
+        if (greenPos){
+            return data[this.state.to%10] - data[this.state.from%10] > 0 ? 'green' : 'red';
+        } else {
+            return data[this.state.to%10] - data[this.state.from%10] > 0 ? 'red' : 'green';
+        }
+    }
+
     render(){
         return(
             <div> 
@@ -266,14 +282,14 @@ class ChangeCalculator extends React.Component {
                 <div style={{display: 'float', flexWrap: 'wrap', marginLeft: 100, paddingLeft: 40, paddingRight: 100, marginTop: 50,}}>
                 <div style={{float: 'right', fontSize: 13, marginTop: -20, marginRight: 265}}>HEV and PEV Sales </div>
                     <div style={{backgroundColor: '#f2f3f4', padding:30, width: '35%', float: 'right', marginRight: 30}}>
-                        <strong style={{color: 'black', fontSize: 30}}>
+                        <strong style={{color: this.fontColor(true, this.sumData(pevSales, hevSales)), fontSize: 30}}>
                             {((((hevSales[this.state.to%10]+pevSales[this.state.to%10]) - (hevSales[this.state.from%10]+pevSales[this.state.from%10])))/(hevSales[this.state.from%10]+pevSales[this.state.from%10])*100).toFixed(2)} %
                         </strong>
                         <div style={{fontSize: 13, marginTop: 10}}>{(hevSales[this.state.from%10]+pevSales[this.state.from%10]).toFixed(2)}K sales &#8594; {(hevSales[this.state.to%10]+pevSales[this.state.to%10]).toFixed(2)}K sales</div>
                     </div>
                     <div style={{float: 'left', fontSize: 13, marginTop: -20}}>Petroleum Liquids Generation </div>
                     <div style={{backgroundColor: '#f2f3f4', padding:30, width: '35%'}}>
-                        <strong style={{color: 'black', fontSize: 30}}>
+                        <strong style={{color: this.fontColor(false, petroleumLiquidsData), fontSize: 30}}>
                             {((petroleumLiquidsData[this.state.to%10] - petroleumLiquidsData[this.state.from%10])/petroleumLiquidsData[this.state.from%10]*100).toFixed(2)} %
                         </strong>
                         <div style={{fontSize: 13, marginTop: 10}}>{petroleumLiquidsData[this.state.from%10]}K MWh &#8594; {petroleumLiquidsData[this.state.to%10]}K MWh</div>

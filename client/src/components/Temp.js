@@ -1,5 +1,7 @@
 import React from 'react';
 
+const apiUrl = "http://localhost:8080"
+
 export default class Temp extends React.Component {
 
     constructor(props) {
@@ -11,13 +13,13 @@ export default class Temp extends React.Component {
     }
     
     callAPI() {
-        fetch("http://localhost:9000/testAPI")
+        fetch(apiUrl + "/testAPI")
             .then(res => res.text())
             .then(res => this.setState({ apiResponse: res }));
     }
 
     callDB() {
-        fetch("http://localhost:9000/testDB")
+        fetch(apiUrl + "/testDB")
             .then(res => res.text())
             .then(res => {
                 // let json = JSON.parse(res);

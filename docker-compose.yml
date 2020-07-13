@@ -1,44 +1,21 @@
-version: "2"
+version: '2'
 services:
-    client:
-        image: webapp-client
-        restart: always
-        ports:
-            - "3000:3000"
-        volumes:
-            - ./client:/client
-            - /client/node_modules
-        links:
-            - api
-        networks:
-            [webappnetwork]
-        build: ./client
-    api:
-        image: webapp-api
-        restart: always
-        ports:
-            - "9000:9000"
-        volumes:
-            - ./api:/api
-            - /api/node_modules
-        depends_on:
-            - mongodb
-        networks:
-            [webappnetwork]
-        build: ./api
-
-    mongodb:
-        image: mongo
-        restart: always
-        container_name: mongodb
-        volumes:
-            - ./data-node:/data/db
-        ports:
-            - 27017:27017
-        command: mongod --noauth --smallfiles
-        networks:
-            - webappnetwork
-
-networks:
-    webappnetwork:
-        driver: bridge
+  client:
+    build: ./client
+    ports:
+      - '3000:3000'
+    depends_on:
+      - api
+    # following lines added to prevent client exiting with code 0 on build
+    stdin_open: true
+    tty: true
+  api:
+    build: ./api
+    ports:
+      - '8080:8080'
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo
+    ports:
+      - '27017:27017'

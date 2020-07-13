@@ -1,6 +1,8 @@
 import React from 'react';
 import BubbleChartDb from './BubbleChartDb';
 
+const apiUrl = "http://localhost:8080"
+
 export default class ManageData extends React.Component {
     constructor(props) {
         super(props);
@@ -38,7 +40,7 @@ export default class ManageData extends React.Component {
         event.preventDefault();
         let url = this.state.apiLink;
         await this.apiToJson(url);
-        await fetch("http://localhost:9000/testDB", {
+        await fetch(apiUrl + "/testDB", {
             method: 'POST',
             body: JSON.stringify({
                 dbName: this.state.dbName,
@@ -67,7 +69,7 @@ export default class ManageData extends React.Component {
         event.preventDefault();
         await this.setState({refreshChart: true});
         console.log('handle refresh');
-        let url = "http://localhost:9000/testDB?refreshchart=" + this.state.refreshChart;
+        let url = apiUrl + "/testDB?refreshchart=" + this.state.refreshChart;
         await fetch(url)
         .then(function(response){
             return response.json();
@@ -83,7 +85,7 @@ export default class ManageData extends React.Component {
         // console.log('handleDelete for: ' + this.state.dbName);
         event.preventDefault();
         await this.setState({deleteDb: true});
-        let url = "http://localhost:9000/testDB?delete=" + this.state.deleteDb;
+        let url = apiUrl + "/testDB?delete=" + this.state.deleteDb;
         await fetch(url, {
             method: 'POST',
             body: JSON.stringify({
@@ -106,7 +108,7 @@ export default class ManageData extends React.Component {
     async handleCountrySubmit(event) {
         console.log('handleCountry for: ' + this.state.dbName);
         event.preventDefault();
-        let url = "http://localhost:9000/testDB?country=" + this.state.country;
+        let url = apiUrl + "/testDB?country=" + this.state.country;
         await fetch(url, {
             method: 'POST',
             body: JSON.stringify({

@@ -7,7 +7,7 @@ const url = require('url');
 const fs = require('fs');
 
 // Connection URL
-const connectionUrl = 'mongodb://127.0.0.1:27017';
+const connectionUrl = 'mongodb://mongo:27017';
 
 let dbName = 'energy';
 let collectionName = 'renewablesrcsnetgen';
@@ -111,27 +111,27 @@ router.post("/donut", function(req, res){
 
 
 // load json file data into MongoDB
-// MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client){
-//     db = client.db(dbName);
-//     collection = db.collection(collectionName);
-//     console.log(dbName);
-//     console.log(collectionName);
-//     let docs;
-//     fs.readFile("./data/net-generation-from-renewable-sources.json", function(err, data) { 
-//         if (err) {
-//             console.log(err);
-//         } else {
-//             docs = JSON.parse(data); 
-//             collection.deleteMany({}, function(){
-//                 console.log("huh");
-//                 collection.insertMany(docs, function(err,r){
-//                     if (err){
-//                         console.log("Issue inserting into DB: " + err);
-//                     }
-//                 })
-//             })   
-//         }
-//     }); 
-// })
+MongoClient.connect(connectionUrl, { useUnifiedTopology: true }).then(function(client){
+    db = client.db(dbName);
+    collection = db.collection(collectionName);
+    console.log(dbName);
+    console.log(collectionName);
+    let docs;
+    fs.readFile("./data/net-generation-from-renewable-sources.json", function(err, data) { 
+        if (err) {
+            console.log(err);
+        } else {
+            docs = JSON.parse(data); 
+            collection.deleteMany({}, function(){
+                console.log("huh");
+                collection.insertMany(docs, function(err,r){
+                    if (err){
+                        console.log("Issue inserting into DB: " + err);
+                    }
+                })
+            })   
+        }
+    }); 
+})
 
 module.exports = router;

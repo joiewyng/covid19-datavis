@@ -14,6 +14,8 @@ import {
     VictoryAxis,
     VictoryLine,
    } from 'victory';
+
+const apiUrl = "http://localhost:8080"
 export default class DataTwo extends React.Component {
 
     constructor(props) {
@@ -29,7 +31,7 @@ export default class DataTwo extends React.Component {
         
     }
     async callDB() {
-        await fetch("http://localhost:9000/energyDB")
+        await fetch(apiUrl+"/energyDB")
             .then(res => {
                 return res.json();
             }).then(json => {
@@ -102,7 +104,7 @@ class DonutDataUpdate extends React.Component {
     }
 
     async updateDataRequest() {
-        let url = "http://localhost:9000/energyDB/donut?update=true";
+        let url = apiUrl + "/energyDB/donut?update=true";
         await fetch(url, {
             method: 'POST',
             body: JSON.stringify({
@@ -122,7 +124,7 @@ class DonutDataUpdate extends React.Component {
     }
 
     async handleReset(event) {
-        let url = "http://localhost:9000/energyDB/donut?reset=true"
+        let url = apiUrl + "/energyDB/donut?reset=true"
          await fetch(url, {
              method: 'POST'
          }).then(function(response){
@@ -140,7 +142,7 @@ class DonutDataUpdate extends React.Component {
 
     async handleSave(event) {
         // event.preventDefault();
-        let url = "http://localhost:9000/energyDB/donut?save=true"
+        let url = apiUrl + "/energyDB/donut?save=true"
         await fetch(url, {
             method: 'POST'
         }).then(function(response){
@@ -162,7 +164,7 @@ class DonutDataUpdate extends React.Component {
     }
 
     async loadFileNames() {
-        let url = "http://localhost:9000/energyDB/donut/filelist";
+        let url = apiUrl + "/energyDB/donut/filelist";
         await fetch(url)
         .then((response) => {
             return response.json();
@@ -181,7 +183,7 @@ class DonutDataUpdate extends React.Component {
 
     async handleRestore(event) {
 
-        let url = "http://localhost:9000/energyDB/donut?restore=true&file=" + this.state.selectedFile;
+        let url = apiUrl + "/energyDB/donut?restore=true&file=" + this.state.selectedFile;
         await fetch(url, {
             method: 'POST'
         }).then(function(response){

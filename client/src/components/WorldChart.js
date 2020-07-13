@@ -22,7 +22,7 @@ const sharedAxisStyles = {
 
 const VictoryZoomVoronoiContainer = createContainer("zoom", "voronoi");
     
-
+const apiUrl = "http://localhost:8080"
 
 export default class WorldChart extends React.Component {
     
@@ -85,7 +85,7 @@ export default class WorldChart extends React.Component {
     }
 
     async callDB() {
-        await fetch("http://localhost:9000/worldDB")
+        await fetch(apiUrl+"/worldDB")
             .then(res => {
                 return res.json();
             }).then(json => {
@@ -105,7 +105,7 @@ export default class WorldChart extends React.Component {
 
     async handleReset(event) {
         event.preventDefault();
-        let url = "http://localhost:9000/worldDB?reset=true"
+        let url = apiUrl+"/worldDB?reset=true"
         await fetch(url, {
             method: 'POST'
         }).then(function(response){
@@ -120,7 +120,7 @@ export default class WorldChart extends React.Component {
 
     async handleRefresh(event) {
         event.preventDefault();
-        let url = "http://localhost:9000/worldDB";
+        let url = apiUrl + "/worldDB";
         await fetch(url)
         .then(function(response){
             return response.json();
@@ -132,7 +132,7 @@ export default class WorldChart extends React.Component {
 
     async handleRestore(event) {
         event.preventDefault();
-        let url = "http://localhost:9000/worldDB?restore=true&file=" + this.state.selectedFile;
+        let url = apiUrl + "/worldDB?restore=true&file=" + this.state.selectedFile;
         await fetch(url, {
             method: 'POST'
         }).then(function(response){
@@ -147,7 +147,7 @@ export default class WorldChart extends React.Component {
 
     async handleSave(event) {
         // event.preventDefault();
-        let url = "http://localhost:9000/worldDB?save=true"
+        let url = apiUrl + "/worldDB?save=true"
         await fetch(url, {
             method: 'POST'
         }).then(function(response){
@@ -159,7 +159,7 @@ export default class WorldChart extends React.Component {
     }
 
    async loadCountries() {
-        let url = "http://localhost:9000/worldDB/countrylist";
+        let url = apiUrl + "/worldDB/countrylist";
         await fetch(url)
         .then((response) => {
             return response.json();
@@ -176,7 +176,7 @@ export default class WorldChart extends React.Component {
     }
 
     async loadFileNames() {
-        let url = "http://localhost:9000/worldDB/filelist";
+        let url = apiUrl + "/worldDB/filelist";
         await fetch(url)
         .then((response) => {
             return response.json();
@@ -194,7 +194,7 @@ export default class WorldChart extends React.Component {
 
     async loadCountryData() {
         console.log('country data loaded');
-        let url = "http://localhost:9000/worldDB/country?name="+this.state.selectedCountry;
+        let url = apiUrl + "/worldDB/country?name="+this.state.selectedCountry;
         await fetch(url)
         .then((response) => {
             return response.json();
@@ -215,7 +215,7 @@ export default class WorldChart extends React.Component {
     }
 
     async updateCountryDataRequest() {
-        let url = "http://localhost:9000/worldDB/country?name="+this.state.selectedCountry;
+        let url = apiUrl + "/worldDB/country?name="+this.state.selectedCountry;
         await fetch(url, {
             method: 'POST',
             body: JSON.stringify({
@@ -234,7 +234,7 @@ export default class WorldChart extends React.Component {
     }
 
     async addCountryRequest() {
-        let url = "http://localhost:9000/worldDB/addcountry";
+        let url = apiUrl + "/worldDB/addcountry";
         await fetch(url, {
             method: 'POST',
             body: JSON.stringify({

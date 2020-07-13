@@ -7,7 +7,7 @@ const url = require('url');
 const fs = require('fs');
 
 // Connection URL
-const connectionUrl = 'mongodb://127.0.0.1:27017';
+const connectionUrl = 'mongodb://mongo:27017';
 
 let dbName = 'covid19';
 let collectionName = 'countrydata';

@@ -18,6 +18,9 @@ import {
     createContainer,
     VictoryArea
    } from 'victory';
+
+
+const apiUrl = "http://localhost:8080"
 export default class DataThree extends React.Component {
 
     constructor(props) {
@@ -33,7 +36,7 @@ export default class DataThree extends React.Component {
         
     }
     async callDB() {
-        await fetch("http://localhost:9000/energyDB")
+        await fetch(apiUrl + "/energyDB")
             .then(res => {
                 return res.json();
             }).then(json => {

@@ -90,12 +90,12 @@ export default class DataThree extends React.Component {
                             />
                         </div>
                     </div>
-                    {/* <div style={{ }}>
+                    <div style={{ }}>
                             <TempChart 
                                 setYear={this.setDonutYear} 
                                 year={this.state.donutYear}
                             />
-                    </div> */}
+                    </div>
                     
                     
                     <HorizBarChart data={this.state.json[1]["Year 2018"]}/>
@@ -266,6 +266,15 @@ class ChangeCalculator extends React.Component {
         return 'orange';
     }
 
+    calculateAvg(start, end, data){
+      let sum = 0;
+      for (let i = start; i <= end; i++){
+        sum += data[i];
+      }
+      let avg = sum/(end - start + 1);
+      return avg;
+    }
+
     render(){
         return(
             <div> 
@@ -296,6 +305,7 @@ class ChangeCalculator extends React.Component {
                             {((((hevSales[this.state.to%10]+pevSales[this.state.to%10]) - (hevSales[this.state.from%10]+pevSales[this.state.from%10])))/(hevSales[this.state.from%10]+pevSales[this.state.from%10])*100).toFixed(2)} %
                         </strong>
                         <div style={{fontSize: 13, marginTop: 10}}>{(hevSales[this.state.from%10]+pevSales[this.state.from%10]).toFixed(2)}K sales &#8594; {(hevSales[this.state.to%10]+pevSales[this.state.to%10]).toFixed(2)}K sales</div>
+                        <div style={{fontSize: 13, marginTop: 10}}><i>Average:</i> {this.calculateAvg(this.state.from%10, this.state.to%10, this.sumData(hevSales, pevSales)).toFixed(2)} sales</div>
                     </div>
                     <div style={{float: 'left', fontSize: 13, marginTop: -20}}>Petroleum Liquids Generation </div>
                     <div style={{backgroundColor: '#f2f3f4', padding:30, width: '35%'}}>
@@ -304,6 +314,7 @@ class ChangeCalculator extends React.Component {
                             {((petroleumLiquidsData[this.state.to%10] - petroleumLiquidsData[this.state.from%10])/petroleumLiquidsData[this.state.from%10]*100).toFixed(2)} %
                         </strong>
                         <div style={{fontSize: 13, marginTop: 10}}>{petroleumLiquidsData[this.state.from%10]}K MWh &#8594; {petroleumLiquidsData[this.state.to%10]}K MWh</div>
+                        <div style={{fontSize: 13, marginTop: 10}}><i>Average:</i> {this.calculateAvg(this.state.from%10, this.state.to%10, petroleumLiquidsData).toFixed(2)}K MWh</div>
                     </div>
                 </div>
             </div>
@@ -2627,9 +2638,9 @@ class TempChart extends React.Component {
     render(){
 
         return(
-            <div style={{display: "flex", flexWrap: "wrap", width: '100%', padding: '10%', marginLeft: 750, marginTop: -450}}>
+            <div style={{width: 1000, marginLeft: '20%', marginTop: '-3%', marginBottom: '5%'}}>
                 <div>
-                    <VictoryChart width={600} height={400} scale={{ x: "time" }}
+                    <VictoryChart width={600} height={350} scale={{ x: "time" }}
                     containerComponent={
                         <VictoryZoomVoronoiContainer
                             zoomDimension="x"
@@ -2758,7 +2769,6 @@ class TempChart extends React.Component {
         );
     }
 }
-
 
 const energyTypes = ['hydroelectric', 'wind', 'solarPhotovoltaic', 'woodFuels'];
 class HorizBarChart extends React.Component {

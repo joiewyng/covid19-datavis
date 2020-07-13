@@ -20,6 +20,7 @@ import {
    } from 'victory';
 
 
+
 const apiUrl = "http://localhost:8080"
 export default class DataThree extends React.Component {
 
@@ -233,7 +234,7 @@ class ChangeCalculator extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            from: 2010,
+            from: 0,
             to: this.props.year
         }
         this.handleChange = this.handleChange.bind(this);
@@ -272,13 +273,17 @@ class ChangeCalculator extends React.Component {
                     Percent Change: 
                     <select style={{margin: 15, padding:7, fontSize:15}} value={this.state.from} onChange={this.handleChange('from')}>
                         {[0,1,2,3,4,5,6,7,8,9].map((num, index) => {
-                            return <option value={num} key={index}>201{num}</option>
+                            return num > this.state.to
+                            ? <option disabled value={num} key={index}>201{num}</option>
+                            : <option value={num} key={index}>201{num}</option>
                         })}
                     </select>
                     <text style={{fontSize: 25}}>&#8594;</text>
                     <select style={{margin: 15, padding:7, fontSize:15}} value={this.state.to} onChange={this.handleChange('to')}>
                         {[0,1,2,3,4,5,6,7,8,9].map((num, index) => {
-                            return <option value={num} key={index}>201{num}</option>
+                            return num < this.state.from
+                            ? <option disabled value={num} key={index}>201{num}</option>
+                            : <option value={num} key={index}>201{num}</option>
                         })}
                     </select>
                 </div>

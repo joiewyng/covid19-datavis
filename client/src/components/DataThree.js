@@ -18,7 +18,7 @@ import {
     createContainer,
     VictoryArea
    } from 'victory';
-
+import TimeSlider from './TimeSlider';
 
 
 const apiUrl = "http://localhost:8080"
@@ -237,16 +237,25 @@ class ChangeCalculator extends React.Component {
             from: 0,
             to: this.props.year
         }
-        this.handleChange = this.handleChange.bind(this);
+        // this.handleChange = this.handleChange.bind(this);
+        this.setTimeRange = this.setTimeRange.bind(this);
     }
 
-    handleChange = prop => (event) => {
-        this.setState({
-            [prop]: event.target.value,
-        });
-        if (prop === 'to'){
-            this.props.setYear(event.target.value) 
-        }
+    // handleChange = prop => (event) => {
+    //     this.setState({
+    //         [prop]: event.target.value,
+    //     });
+    //     if (prop === 'to'){
+    //         this.props.setYear(event.target.value) 
+    //     }
+    // }
+
+    setTimeRange = range => {
+      this.setState({
+        from: range[0]%10,
+        to: range[1]%10
+      })
+      console.log(range)
     }
 
     sumData (data1, data2) {
@@ -278,7 +287,8 @@ class ChangeCalculator extends React.Component {
     render(){
         return(
             <div> 
-                <div style={{marginTop: 40, marginLeft: -40}}>
+
+                {/* <div style={{marginTop: 40, marginLeft: -40}}>
                     Percent Change: 
                     <select style={{margin: 15, padding:7, fontSize:15}} value={this.state.from} onChange={this.handleChange('from')}>
                         {[0,1,2,3,4,5,6,7,8,9].map((num, index) => {
@@ -295,8 +305,10 @@ class ChangeCalculator extends React.Component {
                             : <option value={num} key={index}>201{num}</option>
                         })}
                     </select>
+                  </div> */}
+                <div style={{marginLeft: 400}}>
+                  <TimeSlider updateRange={this.setTimeRange}/>
                 </div>
-                
                 <div style={{display: 'float', flexWrap: 'wrap', marginLeft: 100, paddingLeft: 40, paddingRight: 100, marginTop: 50,}}>
                 <div style={{float: 'right', fontSize: 13, marginTop: -20, marginRight: 265}}>HEV and PEV Sales </div>
                     <div style={{backgroundColor: '#f2f3f4', padding:30, width: '35%', float: 'right', marginRight: 30}}>
@@ -307,7 +319,7 @@ class ChangeCalculator extends React.Component {
                         <div style={{fontSize: 13, marginTop: 10}}>{(hevSales[this.state.from%10]+pevSales[this.state.from%10]).toFixed(2)}K sales &#8594; {(hevSales[this.state.to%10]+pevSales[this.state.to%10]).toFixed(2)}K sales</div>
                         <div style={{fontSize: 13, marginTop: 10}}><i>Average:</i> {this.calculateAvg(this.state.from%10, this.state.to%10, this.sumData(hevSales, pevSales)).toFixed(2)} sales</div>
                     </div>
-                    <div style={{float: 'left', fontSize: 13, marginTop: -20}}>Petroleum Liquids Generation </div>
+                    <div style={{float: 'left', fontSize: 13, marginTop: -20}}>Petroleum Liquids Generation</div>
                     <div style={{backgroundColor: '#f2f3f4', padding:30, width: '35%'}}>
                         <strong style={{color: this.fontColor(false, petroleumLiquidsData), fontSize: 30}}>
                             {((petroleumLiquidsData[this.state.to%10] - petroleumLiquidsData[this.state.from%10])/petroleumLiquidsData[this.state.from%10]*100).toFixed(2) > 0 ? '+' : ''} 

@@ -2,6 +2,8 @@ version: '2'
 services:
   client:
     build: ./client
+    volumes:
+      - ./client:/usr/src/app/client
     ports:
       - '3000:3000'
     depends_on:

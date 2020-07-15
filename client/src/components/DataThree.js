@@ -255,7 +255,7 @@ class ChangeCalculator extends React.Component {
         from: range[0]%10,
         to: range[1]%10
       })
-      console.log(range)
+      this.props.setYear(range[1]%10);
     }
 
     sumData (data1, data2) {
